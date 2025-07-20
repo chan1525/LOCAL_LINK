@@ -9,12 +9,14 @@ import {
   getDoc,
   deleteDoc
 } from 'firebase/firestore';
+import MessageModal from '../../components/MessageModal';
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState({});
   const [deleting, setDeleting] = useState({});
+  const [modal, setModal] = useState(null); // { jobId, applicantId, applicantName }
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -87,11 +89,17 @@ const MyJobs = () => {
               <div style={{ marginTop: 8 }}>
                 {(applications[job.id] || []).length === 0 && <div style={{ color: '#888' }}>No applications yet.</div>}
                 {(applications[job.id] || []).map(app => (
-                  <div key={app.id} style={{ marginBottom: 6, padding: 8, background: '#f5f6fa', borderRadius: 6 }}>
+                  <div key={app.id} style={{ marginBottom: 6, padding: 8, background: '#f5f6fa', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontWeight: 500 }}>{app.userName}</span>
                     <div style={{ color: '#888', fontSize: 11 }}>
                       {app.appliedAt && app.appliedAt.toDate ? app.appliedAt.toDate().toLocaleString() : ''}
                     </div>
+                    <button
+                      style={{ marginLeft: 12, padding: '4px 12px', background: '#007bff', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600 }}
+                      onClick={() => setModal({ jobId: job.id, applicantId: app.id, applicantName: app.userName })}
+                    >
+                      Message
+                    </button>
                   </div>
                 ))}
               </div>
@@ -99,6 +107,14 @@ const MyJobs = () => {
           </div>
         ))}
       </div>
+      {modal && (
+        <MessageModal
+          jobId={modal.jobId}
+          applicantId={modal.applicantId}
+          applicantName={modal.applicantName}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   );
 };
