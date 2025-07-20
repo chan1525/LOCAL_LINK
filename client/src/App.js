@@ -10,6 +10,7 @@ import BusinessDetails from './pages/business/BusinessDetails';
 import BrowseIndividuals from './pages/individual/Browse';
 import IndividualDetails from './pages/individual/IndividualDetails';
 import Profile from './pages/profile/Profile';
+import CreatePost from './pages/posts/CreatePost';
 import logo from './logo.svg';
 import './App.css';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/browse/individuals" element={<BrowseIndividuals />} />
         <Route path="/individual/:id" element={<IndividualDetails />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/create-post" element={<CreatePost />} />
       </Routes>
     </Router>
   );
