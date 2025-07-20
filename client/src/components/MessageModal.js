@@ -6,14 +6,28 @@ import {
   orderBy,
   onSnapshot,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  doc,
+  getDoc
 } from 'firebase/firestore';
 
 const MessageModal = ({ jobId, applicantId, applicantName, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [businessOwnerUid, setBusinessOwnerUid] = useState(null);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    // Fetch business owner UID for this job
+    const fetchJob = async () => {
+      const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+      if (jobDoc.exists()) {
+        setBusinessOwnerUid(jobDoc.data().uid);
+      }
+    };
+    fetchJob();
+  }, [jobId]);
 
   useEffect(() => {
     const q = query(
@@ -38,8 +52,6 @@ const MessageModal = ({ jobId, applicantId, applicantName, onClose }) => {
     setSending(true);
     const user = auth.currentUser;
     let senderName = user.displayName || 'User';
-    // Try to get from Firestore
-    // (optional: fetch business/individual name if needed)
     await addDoc(collection(db, 'jobs', jobId, 'applications', applicantId, 'messages'), {
       senderUid: user.uid,
       senderName,
@@ -59,13 +71,15 @@ const MessageModal = ({ jobId, applicantId, applicantName, onClose }) => {
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16, background: '#f5f6fa' }}>
           {messages.map(msg => {
-            // Business owner UID is the job poster's UID (from jobId's parent doc), applicant UID is applicantId
-            // Current user is auth.currentUser.uid
-            // If senderUid === applicantId, align right; else align left
+            // Business owner messages always left, applicant messages always right
             const isApplicant = msg.senderUid === applicantId;
+            const isBusinessOwner = msg.senderUid === businessOwnerUid;
+            const align = isApplicant ? 'right' : 'left';
+            const bg = isApplicant ? '#007bff' : '#eee';
+            const color = isApplicant ? '#fff' : '#222';
             return (
-              <div key={msg.id} style={{ marginBottom: 10, textAlign: isApplicant ? 'right' : 'left' }}>
-                <div style={{ display: 'inline-block', background: isApplicant ? '#007bff' : '#eee', color: isApplicant ? '#fff' : '#222', borderRadius: 12, padding: '6px 12px', maxWidth: 200, wordBreak: 'break-word' }}>
+              <div key={msg.id} style={{ marginBottom: 10, textAlign: align }}>
+                <div style={{ display: 'inline-block', background: bg, color: color, borderRadius: 12, padding: '6px 12px', maxWidth: 200, wordBreak: 'break-word' }}>
                   {msg.content}
                 </div>
                 <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>
