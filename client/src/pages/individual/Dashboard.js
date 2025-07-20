@@ -3,6 +3,7 @@ import { auth, db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import PostForm from '../../components/PostForm';
+import { signOut } from 'firebase/auth';
 
 const IndividualDashboard = () => {
   const [userData, setUserData] = useState(null);
@@ -42,6 +43,7 @@ const IndividualDashboard = () => {
         <button onClick={() => navigate('/browse/business')}>Browse Business</button>
         <button onClick={() => navigate('/browse/individuals')}>Browse Individuals</button>
         <button onClick={() => navigate('/profile')}>Profile</button>
+        <button onClick={async () => { await signOut(auth); navigate('/'); }} style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', fontWeight: 600 }}>Log Out</button>
       </div>
     </div>
   );
