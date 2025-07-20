@@ -7,6 +7,8 @@ import BusinessDashboard from './pages/business/Dashboard';
 import IndividualDashboard from './pages/individual/Dashboard';
 import BrowseBusiness from './pages/business/Browse';
 import BusinessDetails from './pages/business/BusinessDetails';
+import BrowseIndividuals from './pages/individual/Browse';
+import IndividualDetails from './pages/individual/IndividualDetails';
 import logo from './logo.svg';
 import './App.css';
 
@@ -21,6 +23,8 @@ function App() {
         <Route path="/dashboard/individual" element={<IndividualDashboard />} />
         <Route path="/browse/business" element={<BrowseBusiness />} />
         <Route path="/business/:id" element={<BusinessDetails />} />
+        <Route path="/browse/individuals" element={<BrowseIndividuals />} />
+        <Route path="/individual/:id" element={<IndividualDetails />} />
       </Routes>
     </Router>
   );
