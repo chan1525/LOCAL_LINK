@@ -38,6 +38,7 @@ const IndividualDashboard = () => {
         <button onClick={() => navigate('/posts')}>View Posts</button>
         <button onClick={() => navigate('/jobs')}>Browse Jobs</button>
         <button onClick={() => navigate('/my-applications')}>My Applications</button>
+        <button onClick={() => navigate('/my-connections')}>My Connections</button>
         <button onClick={() => navigate('/browse/business')}>Browse Business</button>
         <button onClick={() => navigate('/browse/individuals')}>Browse Individuals</button>
         <button onClick={() => navigate('/profile')}>Profile</button>

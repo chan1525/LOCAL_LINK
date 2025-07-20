@@ -16,6 +16,7 @@ import PostJob from './pages/jobs/PostJob';
 import JobsFeed from './pages/jobs/JobsFeed';
 import MyJobs from './pages/jobs/MyJobs';
 import MyApplications from './pages/jobs/MyApplications';
+import MyConnections from './pages/individual/MyConnections';
 import logo from './logo.svg';
 import './App.css';
 
@@ -39,6 +40,7 @@ function App() {
         <Route path="/jobs" element={<JobsFeed />} />
         <Route path="/my-jobs" element={<MyJobs />} />
         <Route path="/my-applications" element={<MyApplications />} />
+        <Route path="/my-connections" element={<MyConnections />} />
       </Routes>
     </Router>
   );
