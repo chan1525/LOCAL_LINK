@@ -11,6 +11,7 @@ import BrowseIndividuals from './pages/individual/Browse';
 import IndividualDetails from './pages/individual/IndividualDetails';
 import Profile from './pages/profile/Profile';
 import CreatePost from './pages/posts/CreatePost';
+import PostsFeed from './pages/posts/PostsFeed';
 import logo from './logo.svg';
 import './App.css';
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/individual/:id" element={<IndividualDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/create-post" element={<CreatePost />} />
+        <Route path="/posts" element={<PostsFeed />} />
       </Routes>
     </Router>
   );
