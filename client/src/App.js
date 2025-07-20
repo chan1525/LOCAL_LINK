@@ -9,6 +9,7 @@ import BrowseBusiness from './pages/business/Browse';
 import BusinessDetails from './pages/business/BusinessDetails';
 import BrowseIndividuals from './pages/individual/Browse';
 import IndividualDetails from './pages/individual/IndividualDetails';
+import Profile from './pages/profile/Profile';
 import logo from './logo.svg';
 import './App.css';
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/business/:id" element={<BusinessDetails />} />
         <Route path="/browse/individuals" element={<BrowseIndividuals />} />
         <Route path="/individual/:id" element={<IndividualDetails />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );
