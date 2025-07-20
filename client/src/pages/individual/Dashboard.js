@@ -36,6 +36,7 @@ const IndividualDashboard = () => {
       <div style={{ margin: '2em 0', display: 'flex', gap: '1.5em' }}>
         <button onClick={() => navigate('/create-post')}>Create Post</button>
         <button onClick={() => navigate('/posts')}>View Posts</button>
+        <button onClick={() => navigate('/jobs')}>Browse Jobs</button>
         <button onClick={() => navigate('/browse/business')}>Browse Business</button>
         <button onClick={() => navigate('/browse/individuals')}>Browse Individuals</button>
         <button onClick={() => navigate('/profile')}>Profile</button>

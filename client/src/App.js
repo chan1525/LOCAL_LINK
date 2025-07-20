@@ -13,6 +13,8 @@ import Profile from './pages/profile/Profile';
 import CreatePost from './pages/posts/CreatePost';
 import PostsFeed from './pages/posts/PostsFeed';
 import PostJob from './pages/jobs/PostJob';
+import JobsFeed from './pages/jobs/JobsFeed';
+import MyJobs from './pages/jobs/MyJobs';
 import logo from './logo.svg';
 import './App.css';
 
@@ -33,6 +35,8 @@ function App() {
         <Route path="/create-post" element={<CreatePost />} />
         <Route path="/posts" element={<PostsFeed />} />
         <Route path="/post-job" element={<PostJob />} />
+        <Route path="/jobs" element={<JobsFeed />} />
+        <Route path="/my-jobs" element={<MyJobs />} />
       </Routes>
     </Router>
   );
