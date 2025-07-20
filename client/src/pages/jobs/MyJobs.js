@@ -6,13 +6,15 @@ import {
   query,
   orderBy,
   doc,
-  getDoc
+  getDoc,
+  deleteDoc
 } from 'firebase/firestore';
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState({});
+  const [deleting, setDeleting] = useState({});
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -42,6 +44,20 @@ const MyJobs = () => {
     if (jobs.length) fetchApplications();
   }, [jobs]);
 
+  const handleDelete = async (jobId) => {
+    if (!window.confirm('Are you sure you want to delete this job and all its applications?')) return;
+    setDeleting(prev => ({ ...prev, [jobId]: true }));
+    // Delete all applications
+    const appsSnap = await getDocs(collection(db, 'jobs', jobId, 'applications'));
+    for (const appDoc of appsSnap.docs) {
+      await deleteDoc(doc(db, 'jobs', jobId, 'applications', appDoc.id));
+    }
+    // Delete the job itself
+    await deleteDoc(doc(db, 'jobs', jobId));
+    setJobs(prev => prev.filter(job => job.id !== jobId));
+    setDeleting(prev => ({ ...prev, [jobId]: false }));
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -59,6 +75,13 @@ const MyJobs = () => {
             <div style={{ color: '#888', fontSize: 12, marginBottom: 8 }}>
               {job.createdAt && job.createdAt.toDate ? job.createdAt.toDate().toLocaleString() : ''}
             </div>
+            <button
+              onClick={() => handleDelete(job.id)}
+              disabled={deleting[job.id]}
+              style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', fontWeight: 600, marginBottom: 12 }}
+            >
+              {deleting[job.id] ? 'Deleting...' : 'Delete'}
+            </button>
             <div style={{ marginTop: 12 }}>
               <strong>Applications:</strong>
               <div style={{ marginTop: 8 }}>
