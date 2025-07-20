@@ -58,16 +58,22 @@ const MessageModal = ({ jobId, applicantId, applicantName, onClose }) => {
           Chat with {applicantName}
         </div>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16, background: '#f5f6fa' }}>
-          {messages.map(msg => (
-            <div key={msg.id} style={{ marginBottom: 10, textAlign: msg.senderUid === auth.currentUser.uid ? 'right' : 'left' }}>
-              <div style={{ display: 'inline-block', background: msg.senderUid === auth.currentUser.uid ? '#007bff' : '#eee', color: msg.senderUid === auth.currentUser.uid ? '#fff' : '#222', borderRadius: 12, padding: '6px 12px', maxWidth: 200, wordBreak: 'break-word' }}>
-                {msg.content}
+          {messages.map(msg => {
+            // Business owner UID is the job poster's UID (from jobId's parent doc), applicant UID is applicantId
+            // Current user is auth.currentUser.uid
+            // If senderUid === applicantId, align right; else align left
+            const isApplicant = msg.senderUid === applicantId;
+            return (
+              <div key={msg.id} style={{ marginBottom: 10, textAlign: isApplicant ? 'right' : 'left' }}>
+                <div style={{ display: 'inline-block', background: isApplicant ? '#007bff' : '#eee', color: isApplicant ? '#fff' : '#222', borderRadius: 12, padding: '6px 12px', maxWidth: 200, wordBreak: 'break-word' }}>
+                  {msg.content}
+                </div>
+                <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>
+                  {msg.sentAt && msg.sentAt.toDate ? msg.sentAt.toDate().toLocaleString() : ''}
+                </div>
               </div>
-              <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>
-                {msg.sentAt && msg.sentAt.toDate ? msg.sentAt.toDate().toLocaleString() : ''}
-              </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
         <form onSubmit={handleSend} style={{ display: 'flex', borderTop: '1px solid #eee', padding: 12, background: '#fff' }}>
