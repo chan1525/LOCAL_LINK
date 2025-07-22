@@ -3,11 +3,13 @@ import { auth, db } from '../../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
+import './Login.css';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,9 +21,11 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
       const user = userCredential.user;
+      
       // Check user type in Firestore
       const businessDoc = await getDoc(doc(db, 'business_owners', user.uid));
       if (businessDoc.exists()) {
@@ -34,165 +38,158 @@ const Login = () => {
           setError('User type not found.');
         }
       }
-      setLoading(false);
     } catch (err) {
-      setError('Invalid email or password.');
-      setLoading(false);
+      setError('Invalid email or password. Please try again.');
     }
+    setLoading(false);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100vw',
-        background: 'linear-gradient(120deg, #3b82f6 0%, #6366f1 50%, #1e293b 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Light Glass Layer */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'rgba(255,255,255,0.08)',
-        pointerEvents: 'none',
-        zIndex: 0
-      }} />
+    <div className="login-wrapper">
+      {/* Background Elements */}
+      <div className="background-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
+      </div>
 
-      {/* Login Card */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          zIndex: 1,
-          width: 370,
-          padding: '42px 32px 32px 32px',
-          borderRadius: 18,
-          background: 'rgba(255,255,255,0.98)',
-          boxShadow: '0 4px 32px #23295435',
-          border: '1.5px solid #e0e7ef',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 18,
-        }}
-      >
-        <h2 style={{
-          textAlign: 'center',
-          fontWeight: 900,
-          fontSize: '2.1rem',
-          marginBottom: 10,
-          letterSpacing: 1,
-          color: '#1e293b',
-        }}>
-          Welcome Back
-        </h2>
-        <div style={{
-          textAlign: 'center',
-          marginBottom: 10,
-          color: '#334155',
-          fontWeight: 500,
-          fontSize: 18,
-        }}>
-          Login to <span style={{ color: '#2563eb', fontWeight: 700 }}>LOCAL_LINK</span>
-        </div>
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-          autoComplete="username"
-          style={{
-            width: '100%',
-            padding: '13px 15px',
-            background: '#f1f5f9',
-            border: '1.5px solid #d1d5db',
-            borderRadius: 8,
-            fontSize: '1rem',
-            color: '#1e293b',
-            marginBottom: 4,
-            outline: 'none',
-            transition: 'border 0.2s',
-            boxSizing: 'border-box'
-          }}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-          autoComplete="current-password"
-          style={{
-            width: '100%',
-            padding: '13px 15px',
-            background: '#f1f5f9',
-            border: '1.5px solid #d1d5db',
-            borderRadius: 8,
-            fontSize: '1rem',
-            color: '#1e293b',
-            marginBottom: 5,
-            outline: 'none',
-            transition: 'border 0.2s',
-            boxSizing: 'border-box'
-          }}
-        />
+      {/* Back to Home Link */}
+      <Link to="/" className="back-home">
+        <div className="back-icon">←</div>
+        <span>Back to Home</span>
+      </Link>
 
-        {/* Error Alert */}
-        {error && (
-          <div style={{
-            background: '#fee2e2',
-            color: '#b91c1c',
-            border: '1px solid #fca5a5',
-            borderRadius: 7,
-            padding: '9px 14px',
-            fontWeight: 600,
-            fontSize: 15,
-            textAlign: 'center',
-            marginBottom: '2px'
-          }}>
-            {error}
+      <div className="login-container">
+        <div className="login-card">
+          {/* Header */}
+          <div className="login-header">
+            <div className="logo-section">
+              <h1 className="logo">LOCAL LINK</h1>
+              <div className="logo-underline"></div>
+            </div>
+            <h2 className="login-title">Welcome Back</h2>
+            <p className="login-subtitle">
+              Sign in to your account to continue networking
+            </p>
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '13px 0',
-            background: loading
-              ? 'linear-gradient(90deg, #93c5fd 0%, #a5b4fc 100%)'
-              : 'linear-gradient(90deg, #2563eb 0%, #3b82f6 80%)',
-            boxShadow: '0 2px 13px #64748b20',
-            color: loading ? '#33415599' : '#fff',
-            border: 'none',
-            borderRadius: 9,
-            fontWeight: 700,
-            fontSize: 19,
-            letterSpacing: 0.6,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.18s'
-          }}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="login-form">
+            {/* Email Input */}
+            <div className="form-input-wrapper">
+              <div className="input-icon">✉️</div>
+              <input
+                name="email"
+                type="email"
+                placeholder="Enter your email address"
+                value={form.email}
+                onChange={handleChange}
+                required
+                autoComplete="username"
+                className="form-input"
+              />
+            </div>
 
-        <div style={{
-          textAlign: 'center',
-          marginTop: 10,
-          color: '#6b7280',
-          fontSize: 15
-        }}>
-          Don't have an account?{' '}
-          <Link to="/signup" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: 600 }}>Sign up</Link>
+            {/* Password Input */}
+            <div className="form-input-wrapper">
+              <div className="input-icon">🔒</div>
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+                required
+                autoComplete="current-password"
+                className="form-input"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="password-toggle"
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="form-options">
+              <label className="remember-me">
+                <input type="checkbox" />
+                <span className="checkmark"></span>
+                Remember me
+              </label>
+              <Link to="/forgot-password" className="forgot-password">
+                Forgot password?
+              </Link>
+            </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="alert alert-error">
+                <span className="alert-icon">⚠️</span>
+                {error}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`submit-button ${loading ? 'loading' : ''}`}
+            >
+              {loading ? (
+                <>
+                  <div className="loading-spinner"></div>
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <div className="button-arrow">→</div>
+                </>
+              )}
+            </button>
+
+            {/* Footer */}
+            <div className="login-footer">
+              <p>
+                Don't have an account? 
+                <Link to="/signup" className="signup-link"> Create account</Link>
+              </p>
+            </div>
+          </form>
         </div>
-      </form>
+
+        {/* Features Preview */}
+        <div className="features-preview">
+          <div className="feature-item">
+            <div className="feature-icon">🤝</div>
+            <div>
+              <h4>Connect Locally</h4>
+              <p>Build meaningful professional relationships in your area</p>
+            </div>
+          </div>
+          <div className="feature-item">
+            <div className="feature-icon">💼</div>
+            <div>
+              <h4>Find Opportunities</h4>
+              <p>Discover jobs, partnerships, and business prospects</p>
+            </div>
+          </div>
+          <div className="feature-item">
+            <div className="feature-icon">🌟</div>
+            <div>
+              <h4>Grow Together</h4>
+              <p>Share expertise and learn from your local community</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

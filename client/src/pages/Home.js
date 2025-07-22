@@ -1,10 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// ...styles, FloatingOrbs, AnimatedButton, FeatureCard, StatsBox, PingDot, and features array as you posted above
+// Features data
+const features = [
+  {
+    title: 'Business Networking',
+    description: 'Connect with local businesses, suppliers, and potential partners to expand your professional network and discover new opportunities.'
+  },
+  {
+    title: 'Talent Acquisition',
+    description: 'Business owners can post job openings, skilled professionals can showcase their expertise, and everyone benefits from local talent matching.'
+  },
+  {
+    title: 'Professional Communication',
+    description: 'Streamlined messaging and collaboration tools designed for business communication and project coordination.'
+  },
+  {
+    title: 'Multi-language Support',
+    description: 'Conduct business in English, Hindi, or Kannada to serve your local market effectively and reach diverse customer bases.'
+  },
+  {
+    title: 'Enterprise Security',
+    description: 'Business-grade security and privacy protection with encrypted communications and secure data handling for professional use.'
+  }
+];
 
-// (Paste all your provided styles, feature arrays, and the other components **unchanged above** this line!)
-// Make sure Link is imported from 'react-router-dom'
+// Testimonials data
+const testimonials = [
+  {
+    name: 'Priya K.',
+    role: 'Small Business Owner',
+    quote: "LOCAL LINK helped me hire trustworthy staff for my boutique and discover local suppliers I'd never met before. It's a must-have!",
+    avatar: 'https://i.pravatar.cc/150?img=1'
+  },
+  {
+    name: 'Rohit Sharma',
+    role: 'Freelance Designer',
+    quote: "I started getting project invites from local companies. Easy, secure, and all in my own language!",
+    avatar: 'https://i.pravatar.cc/150?img=2'
+  },
+  {
+    name: 'Deepika N.',
+    role: 'Startup Founder',
+    quote: "Networking used to be hard in my town. Now my business found real partners and talent to grow.",
+    avatar: 'https://i.pravatar.cc/150?img=3'
+  }
+];
+
 const styles = {
   gradientBox: {
     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
@@ -36,6 +78,25 @@ const styles = {
     justifyContent: 'space-between',
     height: '64px',
     padding: '0 24px'
+  },
+  navLinks: {
+    display: 'flex',
+    gap: '32px',
+    alignItems: 'center',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '1rem',
+    fontWeight: 500
+  },
+  navLink: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    textDecoration: 'none',
+    transition: 'color 0.3s ease',
+    cursor: 'pointer'
+  },
+  authButtons: {
+    display: 'flex',
+    gap: '16px',
+    alignItems: 'center'
   },
   typography: {
     h1: {
@@ -138,6 +199,87 @@ const styles = {
   grid: {
     display: 'grid',
     gap: '32px'
+  },
+  // Testimonials styles
+  testimonialsSection: {
+    padding: '80px 0',
+    background: 'rgba(255, 255, 255, 0.02)'
+  },
+  testimonialsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+    gap: '32px',
+    marginTop: '64px'
+  },
+  testimonialCard: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '16px',
+    padding: '32px',
+    textAlign: 'center',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer'
+  },
+  testimonialAvatar: {
+    width: '80px',
+    height: '80px',
+    borderRadius: '50%',
+    margin: '0 auto 20px',
+    objectFit: 'cover',
+    border: '3px solid rgba(96, 165, 250, 0.3)'
+  },
+  testimonialQuote: {
+    fontSize: '1.1rem',
+    fontStyle: 'italic',
+    color: 'rgba(255, 255, 255, 0.9)',
+    lineHeight: 1.6,
+    marginBottom: '24px'
+  },
+  testimonialName: {
+    fontSize: '1.25rem',
+    fontWeight: 700,
+    color: 'white',
+    marginBottom: '8px'
+  },
+  testimonialRole: {
+    fontSize: '1rem',
+    color: '#93c5fd'
+  },
+  // Contact section styles
+  contactSection: {
+    padding: '80px 0',
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05))'
+  },
+  contactContent: {
+    textAlign: 'center',
+    maxWidth: '800px',
+    margin: '0 auto'
+  },
+  contactInfo: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '32px',
+    marginTop: '48px'
+  },
+  contactItem: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '16px',
+    padding: '24px',
+    textAlign: 'center',
+    transition: 'all 0.3s ease'
+  },
+  contactIcon: {
+    width: '48px',
+    height: '48px',
+    background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+    borderRadius: '12px',
+    margin: '0 auto 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 };
 
@@ -369,29 +511,6 @@ const PingDot = ({ style, delay = 0 }) => (
   </div>
 );
 
-// Features data
-const features = [
-  {
-    title: 'Business Networking',
-    description: 'Connect with local businesses, suppliers, and potential partners to expand your professional network and discover new opportunities.'
-  },
-  {
-    title: 'Talent Acquisition',
-    description: 'Business owners can post job openings, skilled professionals can showcase their expertise, and everyone benefits from local talent matching.'
-  },
-  {
-    title: 'Professional Communication',
-    description: 'Streamlined messaging and collaboration tools designed for business communication and project coordination.'
-  },
-  {
-    title: 'Multi-language Support',
-    description: 'Conduct business in English, Hindi, or Kannada to serve your local market effectively and reach diverse customer bases.'
-  },
-  {
-    title: 'Enterprise Security',
-    description: 'Business-grade security and privacy protection with encrypted communications and secure data handling for professional use.'
-  }
-];
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
 
@@ -400,6 +519,13 @@ const Home = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div style={styles.gradientBox}>
@@ -438,9 +564,43 @@ const Home = () => {
               WebkitTextFillColor: 'transparent',
               margin: 0
             }}>
-              LOCAL<span style={{ color: 'white' }}>_LINK</span>
+              LOCAL<span style={{ color: 'white' }}> LINK</span>
             </h1>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div style={styles.navLinks}>
+              <a 
+                style={styles.navLink} 
+                onClick={() => scrollToSection('about')}
+                onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
+              >
+                About
+              </a>
+              <a 
+                style={styles.navLink} 
+                onClick={() => scrollToSection('features')}
+                onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
+              >
+                Features
+              </a>
+              <a 
+                style={styles.navLink} 
+                onClick={() => scrollToSection('testimonials')}
+                onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
+              >
+                Testimonials
+              </a>
+              <a 
+                style={styles.navLink} 
+                onClick={() => scrollToSection('contact')}
+                onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
+                onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
+              >
+                Contact
+              </a>
+            </div>
+            <div style={styles.authButtons}>
               <Link to="/login" style={{ textDecoration: 'none' }}>
                 <button style={{
                   ...styles.button.base,
@@ -480,8 +640,7 @@ const Home = () => {
               display: 'block',
               background: 'linear-gradient(135deg, #60a5fa, #6366f1, #14b8a6)',
               WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              animation: 'float 6s ease-in-out infinite'
+              WebkitTextFillColor: 'transparent'
             }}>
               Local Business Network
             </span>
@@ -496,7 +655,7 @@ const Home = () => {
             <span style={{ color: '#93c5fd', fontWeight: 600 }}>
               {' '}Connect, collaborate, and grow
             </span>
-            {' '}your business with LOCAL_LINK.
+            {' '}your business with LOCAL LINK.
           </p>
 
           <div style={{
@@ -534,7 +693,7 @@ const Home = () => {
       </section>
 
       {/* About Section */}
-      <section style={{
+      <section id="about" style={{
         ...styles.container,
         paddingTop: '80px',
         paddingBottom: '80px'
@@ -547,7 +706,7 @@ const Home = () => {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>
-              LOCAL_LINK
+              LOCAL LINK
             </span>
           </h2>
           
@@ -564,11 +723,39 @@ const Home = () => {
             maxWidth: '900px',
             margin: '0 auto'
           }}>
-            LOCAL_LINK is the professional networking platform designed for tier 2 and tier 3 cities—connecting 
+            LOCAL LINK is the professional networking platform designed for tier 2 and tier 3 cities—connecting 
             local businesses, entrepreneurs, skilled professionals, and service providers. Whether you're seeking 
-            business partnerships, hiring talent, or expanding your professional network, LOCAL_LINK is your 
+            business partnerships, hiring talent, or expanding your professional network, LOCAL LINK is your 
             gateway to local business growth.
           </p>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" style={{
+        ...styles.container,
+        paddingTop: '80px',
+        paddingBottom: '80px'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <h2 style={styles.typography.h2}>
+            Our{' '}
+            <span style={{
+              background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Features
+            </span>
+          </h2>
+          
+          <div style={{
+            width: '96px',
+            height: '4px',
+            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+            margin: '0 auto 32px',
+            borderRadius: '2px'
+          }} />
         </div>
 
         {/* Features Grid */}
@@ -582,8 +769,188 @@ const Home = () => {
             <FeatureCard key={index} feature={feature} index={index} />
           ))}
         </div>
+      </section>
 
-        {/* CTA Section */}
+      {/* Testimonials Section */}
+      <section id="testimonials" style={styles.testimonialsSection}>
+        <div style={styles.container}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h2 style={styles.typography.h2}>
+              What Our{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                Users Say
+              </span>
+            </h2>
+            
+            <div style={{
+              width: '96px',
+              height: '4px',
+              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+              margin: '0 auto',
+              borderRadius: '2px'
+            }} />
+          </div>
+
+          <div style={styles.testimonialsGrid}>
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index} 
+                style={{
+                  ...styles.testimonialCard,
+                  ':hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: '0 15px 30px rgba(59, 130, 246, 0.15)'
+                  }
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-8px)';
+                  e.target.style.boxShadow = '0 15px 30px rgba(59, 130, 246, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+                }}
+              >
+                <img 
+                  src={testimonial.avatar} 
+                  alt={testimonial.name} 
+                  style={styles.testimonialAvatar}
+                />
+                <p style={styles.testimonialQuote}>"{testimonial.quote}"</p>
+                <h5 style={styles.testimonialName}>{testimonial.name}</h5>
+                <p style={styles.testimonialRole}>{testimonial.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" style={styles.contactSection}>
+        <div style={styles.container}>
+          <div style={styles.contactContent}>
+            <h2 style={styles.typography.h2}>
+              Get In{' '}
+              <span style={{
+                background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                Touch
+              </span>
+            </h2>
+            
+            <div style={{
+              width: '96px',
+              height: '4px',
+              background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+              margin: '0 auto 32px',
+              borderRadius: '2px'
+            }} />
+            
+            <p style={{
+              ...styles.typography.h6,
+              marginBottom: '48px'
+            }}>
+              Ready to transform your local business network? Get in touch with us today and join the LOCAL LINK community.
+            </p>
+
+            <div style={styles.contactInfo}>
+              <div style={{
+                ...styles.contactItem,
+                ':hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 10px 25px rgba(59, 130, 246, 0.1)'
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}>
+                <div style={styles.contactIcon}>
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    background: 'white', 
+                    borderRadius: '4px' 
+                  }} />
+                </div>
+                <h4 style={styles.typography.h5}>Email Us</h4>
+                <p style={styles.typography.body1}>contact@locallink.com</p>
+              </div>
+
+              <div style={{
+                ...styles.contactItem,
+                ':hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 10px 25px rgba(59, 130, 246, 0.1)'
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}>
+                <div style={styles.contactIcon}>
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    background: 'white', 
+                    borderRadius: '4px' 
+                  }} />
+                </div>
+                <h4 style={styles.typography.h5}>Call Us</h4>
+                <p style={styles.typography.body1}>+91 98765 43210</p>
+              </div>
+
+              <div style={{
+                ...styles.contactItem,
+                ':hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 10px 25px rgba(59, 130, 246, 0.1)'
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.boxShadow = '0 10px 25px rgba(59, 130, 246, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}>
+                <div style={styles.contactIcon}>
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    background: 'white', 
+                    borderRadius: '4px' 
+                  }} />
+                </div>
+                <h4 style={styles.typography.h5}>Visit Us</h4>
+                <p style={styles.typography.body1}>Business District, Tech City</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section style={{
+        ...styles.container,
+        paddingTop: '80px',
+        paddingBottom: '80px'
+      }}>
         <div style={{
           ...styles.paper,
           background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2))',
@@ -625,7 +992,7 @@ const Home = () => {
             WebkitTextFillColor: 'transparent',
             marginBottom: '16px'
           }}>
-            LOCAL<span style={{ color: 'white' }}>_LINK</span>
+            LOCAL<span style={{ color: 'white' }}> LINK</span>
           </h3>
           <p style={{
             color: 'rgba(255, 255, 255, 0.6)',
@@ -637,7 +1004,7 @@ const Home = () => {
             color: 'rgba(255, 255, 255, 0.4)',
             fontSize: '0.875rem'
           }}>
-            © {new Date().getFullYear()} LOCAL_LINK. Empowering professional communities worldwide.
+            © {new Date().getFullYear()} LOCAL LINK. Empowering professional communities worldwide.
           </p>
         </div>
       </footer>

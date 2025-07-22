@@ -3,11 +3,13 @@ import { auth, db } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
+import './Signup.css';
 
 const initialBusiness = {
   name: '', email: '', password: '', businessName: '', businessType: '',
   address: '', phone: '', description: '', image: ''
 };
+
 const initialIndividual = {
   name: '', email: '', password: '', occupation: '', skills: '',
   address: '', phone: '', description: '', image: ''
@@ -49,6 +51,7 @@ const Signup = () => {
     setError('');
     setSuccess(false);
     setLoading(true);
+    
     for (const key in form) {
       if (key !== 'image' && !form[key]) {
         setError('All fields except image are required.');
@@ -56,17 +59,21 @@ const Signup = () => {
         return;
       }
     }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth, form.email, form.password
       );
       const user = userCredential.user;
       const { password, ...userData } = form;
+      
       await setDoc(doc(db, userType === 'business' ? 'business_owners' : 'individuals', user.uid), {
         ...userData, uid: user.uid, createdAt: new Date()
       });
+      
       setSuccess(true);
       setForm(userType === 'business' ? initialBusiness : initialIndividual);
+      
       setTimeout(() => {
         navigate(userType === 'business' ? '/dashboard/business' : '/dashboard/individual');
       }, 1200);
@@ -77,228 +84,250 @@ const Signup = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      minWidth: '100vw',
-      background: 'linear-gradient(120deg, #3b82f6 10%, #6366f1 60%, #1e293b 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 18,
-          boxShadow: '0 4px 40px #1e293b29',
-          maxWidth: 430,
-          width: '95vw',
-          padding: 'clamp(22px,5vw,40px) clamp(18px,6vw,38px)',
-          margin: '2vw',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          maxHeight: '97vh',
-          overflowY: 'auto',
-        }}
-      >
-        <h2 style={{
-          fontWeight: 900,
-          fontSize: 'clamp(1.6rem,2.2vw,2.15rem)',
-          lineHeight: 1.15,
-          color: '#1e293b',
-          textAlign: 'center',
-          margin: 0,
-          marginBottom: '0.7em'
-        }}>
-          Sign up
-        </h2>
-        <div style={{
-          textAlign: 'center',
-          color: '#334155',
-          fontWeight: 500,
-          fontSize: 'clamp(1rem,1.1vw,1.14rem)',
-          marginBottom: 12,
-        }}>
-          Join <span style={{ color: '#2563eb', fontWeight: 700 }}>LOCAL_LINK</span> as a{' '}
-          <span style={{ color: '#3b82f6', fontWeight: 700 }}>
-            {userType.charAt(0).toUpperCase() + userType.slice(1)}
-          </span>
-        </div>
+    <div className="signup-wrapper">
+      {/* Background Elements */}
+      <div className="background-orbs">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="orb orb-3"></div>
+      </div>
 
-        {/* USER TYPE SWITCH */}
-        <div style={{
-          display: 'flex',
-          gap: 28,
-          justifyContent: 'center',
-          marginBottom: 16,
-        }}>
-          <label style={{
-            fontWeight: 600,
-            color: userType === 'business' ? '#2563eb' : '#64748b',
-            cursor: 'pointer',
-            fontSize: 16,
-            letterSpacing: 0.5,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5
-          }}>
-            <input type="radio" value="business" checked={userType === 'business'} onChange={handleUserTypeChange} />
-            Business Owner
-          </label>
-          <label style={{
-            fontWeight: 600,
-            color: userType === 'individual' ? '#2563eb' : '#64748b',
-            cursor: 'pointer',
-            fontSize: 16,
-            letterSpacing: 0.5,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 5
-          }}>
-            <input type="radio" value="individual" checked={userType === 'individual'} onChange={handleUserTypeChange} />
-            Individual
-          </label>
-        </div>
+      {/* Back to Home Link */}
+      <Link to="/" className="back-home">
+        <div className="back-icon">←</div>
+        <span>Back to Home</span>
+      </Link>
 
-        {/* FORM FIELDS */}
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 13,
-            alignItems: 'center',
-            margin: 0
-          }}
-        >
-          <FormInput name="name" placeholder="Name" value={form.name} onChange={handleChange} />
-          <FormInput name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
-          <FormInput name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} />
-          {userType === 'business' ? (
-            <>
-              <FormInput name="businessName" placeholder="Business Name" value={form.businessName} onChange={handleChange} />
-              <FormInput name="businessType" placeholder="Business Type" value={form.businessType} onChange={handleChange} />
-            </>
-          ) : (
-            <>
-              <FormInput name="occupation" placeholder="Occupation" value={form.occupation} onChange={handleChange} />
-              <FormInput name="skills" placeholder="Skills" value={form.skills} onChange={handleChange} />
-            </>
-          )}
-          <FormInput name="address" placeholder="Address" value={form.address} onChange={handleChange} />
-          <FormInput name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} />
-          <FormTextarea name="description" placeholder="Description" value={form.description} onChange={handleChange} />
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{
-              width: '100%',
-              marginBottom: '5px',
-              fontSize: 15,
-              background: '#f1f5f9',
-            }}
-          />
-          {form.image &&
-            <img src={form.image} alt="Preview" style={{
-              width: 80, height: 80, objectFit: 'cover', borderRadius: 5, margin: '6px auto', display: 'block', border: '1px solid #cbd5e1'
-            }} />
-          }
-          {error && <div style={alertStyle('#fee2e2', '#b91c1c', '#fca5a5')}>{error}</div>}
-          {success && <div style={alertStyle('#d1fae5', '#065f46', '#6ee7b7')}>Signup successful! Redirecting...</div>}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '13px 0',
-              background: loading
-                ? 'linear-gradient(90deg,#bdbfe0 0%,#93c5fd 80%, #a5b4fc 100%)'
-                : 'linear-gradient(90deg, #2563eb 0%, #3b82f6 90%)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontWeight: 700,
-              fontSize: '1.13rem',
-              letterSpacing: 0.2,
-              marginTop: 4,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background 0.17s'
-            }}
-          >
-            {loading ? 'Signing up...' : 'Sign Up'}
-          </button>
-        </form>
-        <div style={{
-          textAlign: 'center',
-          marginTop: 15,
-          color: '#64748b',
-          fontSize: 15
-        }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: 600 }}>Login</Link>
+      <div className="signup-container">
+        <div className="signup-card">
+          {/* Header */}
+          <div className="signup-header">
+            <h1 className="signup-title">Join LOCAL LINK</h1>
+            <p className="signup-subtitle">
+              Connect with local businesses and professionals in your area
+            </p>
+          </div>
+
+          {/* User Type Selection */}
+          <div className="user-type-selection">
+            <div className="type-toggle">
+              <input 
+                type="radio" 
+                id="business" 
+                value="business" 
+                checked={userType === 'business'} 
+                onChange={handleUserTypeChange}
+                className="type-input"
+              />
+              <label htmlFor="business" className="type-label">
+                <div className="type-icon">🏢</div>
+                <span>Business Owner</span>
+              </label>
+
+              <input 
+                type="radio" 
+                id="individual" 
+                value="individual" 
+                checked={userType === 'individual'} 
+                onChange={handleUserTypeChange}
+                className="type-input"
+              />
+              <label htmlFor="individual" className="type-label">
+                <div className="type-icon">👤</div>
+                <span>Individual</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="signup-form">
+            <div className="form-grid">
+              <FormInput 
+                name="name" 
+                placeholder="Full Name" 
+                value={form.name} 
+                onChange={handleChange}
+                icon="👤"
+              />
+              
+              <FormInput 
+                name="email" 
+                type="email" 
+                placeholder="Email Address" 
+                value={form.email} 
+                onChange={handleChange}
+                icon="✉️"
+              />
+              
+              <FormInput 
+                name="password" 
+                type="password" 
+                placeholder="Password" 
+                value={form.password} 
+                onChange={handleChange}
+                icon="🔒"
+              />
+
+              {userType === 'business' ? (
+                <>
+                  <FormInput 
+                    name="businessName" 
+                    placeholder="Business Name" 
+                    value={form.businessName} 
+                    onChange={handleChange}
+                    icon="🏢"
+                  />
+                  <FormInput 
+                    name="businessType" 
+                    placeholder="Business Type (e.g., Restaurant, Tech)" 
+                    value={form.businessType} 
+                    onChange={handleChange}
+                    icon="🏷️"
+                  />
+                </>
+              ) : (
+                <>
+                  <FormInput 
+                    name="occupation" 
+                    placeholder="Occupation" 
+                    value={form.occupation} 
+                    onChange={handleChange}
+                    icon="💼"
+                  />
+                  <FormInput 
+                    name="skills" 
+                    placeholder="Skills (e.g., Web Design, Marketing)" 
+                    value={form.skills} 
+                    onChange={handleChange}
+                    icon="⚡"
+                  />
+                </>
+              )}
+
+              <FormInput 
+                name="address" 
+                placeholder="Address/City" 
+                value={form.address} 
+                onChange={handleChange}
+                icon="📍"
+              />
+              
+              <FormInput 
+                name="phone" 
+                placeholder="Phone Number" 
+                value={form.phone} 
+                onChange={handleChange}
+                icon="📞"
+              />
+            </div>
+
+            <FormTextarea 
+              name="description" 
+              placeholder={userType === 'business' 
+                ? "Tell us about your business..." 
+                : "Tell us about yourself and what you're looking for..."
+              }
+              value={form.description} 
+              onChange={handleChange}
+            />
+
+            {/* Image Upload */}
+            <div className="image-upload-section">
+              <label className="image-upload-label">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="image-input"
+                />
+                <div className="image-upload-content">
+                  <div className="upload-icon">📷</div>
+                  <span>Upload Profile Picture (Optional)</span>
+                </div>
+              </label>
+              
+              {form.image && (
+                <div className="image-preview">
+                  <img src={form.image} alt="Preview" className="preview-image" />
+                  <button 
+                    type="button" 
+                    onClick={() => setForm(prev => ({ ...prev, image: '' }))}
+                    className="remove-image"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Error/Success Messages */}
+            {error && (
+              <div className="alert alert-error">
+                <span className="alert-icon">⚠️</span>
+                {error}
+              </div>
+            )}
+            
+            {success && (
+              <div className="alert alert-success">
+                <span className="alert-icon">✅</span>
+                Signup successful! Redirecting to your dashboard...
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className={`submit-button ${loading ? 'loading' : ''}`}
+            >
+              {loading ? (
+                <>
+                  <div className="loading-spinner"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <div className="button-arrow">→</div>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="signup-footer">
+            <p>Already have an account? <Link to="/login">Sign In</Link></p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// Single reusable input field, keeps everything centered and sizing consistent
-const FormInput = ({ name, ...rest }) => (
-  <input
-    name={name}
-    autoComplete={name}
-    {...rest}
-    style={{
-      width: '100%',
-      padding: '11px 13px',
-      border: '1.4px solid #e5e7eb',
-      borderRadius: 7,
-      fontSize: '1.08rem',
-      color: '#1e293b',
-      background: '#f8fafc',
-      transition: 'border 0.16s',
-      outline: 'none',
-      textAlign: 'center',
-      boxSizing: 'border-box'
-    }}
-  />
+// Form Input Component
+const FormInput = ({ name, icon, ...rest }) => (
+  <div className="form-input-wrapper">
+    <div className="input-icon">{icon}</div>
+    <input
+      name={name}
+      autoComplete={name}
+      className="form-input"
+      {...rest}
+    />
+  </div>
 );
 
-// Consistent textarea for description
+// Form Textarea Component
 const FormTextarea = ({ name, ...rest }) => (
-  <textarea
-    name={name}
-    {...rest}
-    style={{
-      width: '100%',
-      minHeight: 58,
-      border: '1.4px solid #e5e7eb',
-      borderRadius: 7,
-      fontSize: '1.07rem',
-      color: '#1e293b',
-      background: '#f8fafc',
-      transition: 'border 0.16s',
-      outline: 'none',
-      textAlign: 'center',
-      padding: '10px 13px',
-      boxSizing: 'border-box'
-    }}
-  />
+  <div className="form-textarea-wrapper">
+    <textarea
+      name={name}
+      className="form-textarea"
+      rows="3"
+      {...rest}
+    />
+  </div>
 );
-
-const alertStyle = (bg, color, border) => ({
-  background: bg,
-  color: color,
-  border: `1px solid ${border}`,
-  borderRadius: 7,
-  padding: '9px 14px',
-  fontWeight: 600,
-  fontSize: '1.07rem',
-  textAlign: 'center',
-  margin: '6px 0'
-});
 
 export default Signup;
