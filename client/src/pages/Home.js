@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n';
 
 // Features data
 const features = [
@@ -98,9 +100,30 @@ const styles = {
     gap: '16px',
     alignItems: 'center'
   },
+  mobileMenuButton: {
+    display: 'none',
+    color: 'white',
+    fontSize: '1.5rem',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer'
+  },
+  mobileMenu: {
+    position: 'fixed',
+    top: '64px',
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    backdropFilter: 'blur(20px)',
+    padding: '20px',
+    display: 'none',
+    flexDirection: 'column',
+    gap: '20px',
+    zIndex: 999
+  },
   typography: {
     h1: {
-      fontSize: 'clamp(3rem, 5vw, 6rem)',
+      fontSize: 'clamp(2.5rem, 5vw, 6rem)',
       fontWeight: 900,
       color: 'white',
       marginBottom: '24px',
@@ -108,43 +131,43 @@ const styles = {
       textAlign: 'center'
     },
     h2: {
-      fontSize: 'clamp(2.5rem, 4vw, 4rem)',
+      fontSize: 'clamp(2rem, 4vw, 4rem)',
       fontWeight: 900,
       color: 'white',
       marginBottom: '24px',
       textAlign: 'center'
     },
     h3: {
-      fontSize: '2rem',
+      fontSize: 'clamp(1.5rem, 3vw, 2rem)',
       fontWeight: 700,
       color: 'white',
       marginBottom: '16px'
     },
     h4: {
-      fontSize: '1.75rem',
+      fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)',
       fontWeight: 900,
       letterSpacing: '2px'
     },
     h5: {
-      fontSize: '1.5rem',
+      fontSize: 'clamp(1.25rem, 2vw, 1.5rem)',
       fontWeight: 700,
       color: 'white',
       marginBottom: '16px'
     },
     h6: {
-      fontSize: '1.25rem',
+      fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
       color: 'rgba(255, 255, 255, 0.8)',
       marginBottom: '32px',
       lineHeight: 1.6,
       textAlign: 'center'
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
       color: 'rgba(255, 255, 255, 0.7)',
       lineHeight: 1.6
     },
     body2: {
-      fontSize: '0.875rem',
+      fontSize: 'clamp(0.75rem, 1vw, 0.875rem)',
       color: '#93c5fd'
     }
   },
@@ -152,9 +175,9 @@ const styles = {
     base: {
       position: 'relative',
       overflow: 'hidden',
-      fontSize: '1.125rem',
+      fontSize: 'clamp(0.875rem, 1.2vw, 1.125rem)',
       fontWeight: 600,
-      padding: '16px 32px',
+      padding: 'clamp(12px, 2vw, 16px) clamp(20px, 3vw, 32px)',
       borderRadius: '12px',
       border: 'none',
       cursor: 'pointer',
@@ -200,55 +223,55 @@ const styles = {
     display: 'grid',
     gap: '32px'
   },
-  // Testimonials styles
+  // Responsive testimonials styles
   testimonialsSection: {
-    padding: '80px 0',
+    padding: 'clamp(40px, 8vw, 80px) 0',
     background: 'rgba(255, 255, 255, 0.02)'
   },
   testimonialsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: '32px',
-    marginTop: '64px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: 'clamp(20px, 4vw, 32px)',
+    marginTop: 'clamp(32px, 6vw, 64px)'
   },
   testimonialCard: {
     background: 'rgba(255, 255, 255, 0.05)',
     backdropFilter: 'blur(16px)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '16px',
-    padding: '32px',
+    padding: 'clamp(20px, 4vw, 32px)',
     textAlign: 'center',
     transition: 'all 0.3s ease',
     cursor: 'pointer'
   },
   testimonialAvatar: {
-    width: '80px',
-    height: '80px',
+    width: 'clamp(60px, 10vw, 80px)',
+    height: 'clamp(60px, 10vw, 80px)',
     borderRadius: '50%',
     margin: '0 auto 20px',
     objectFit: 'cover',
     border: '3px solid rgba(96, 165, 250, 0.3)'
   },
   testimonialQuote: {
-    fontSize: '1.1rem',
+    fontSize: 'clamp(0.9rem, 1.3vw, 1.1rem)',
     fontStyle: 'italic',
     color: 'rgba(255, 255, 255, 0.9)',
     lineHeight: 1.6,
     marginBottom: '24px'
   },
   testimonialName: {
-    fontSize: '1.25rem',
+    fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
     fontWeight: 700,
     color: 'white',
     marginBottom: '8px'
   },
   testimonialRole: {
-    fontSize: '1rem',
+    fontSize: 'clamp(0.875rem, 1.2vw, 1rem)',
     color: '#93c5fd'
   },
-  // Contact section styles
+  // Responsive contact section styles
   contactSection: {
-    padding: '80px 0',
+    padding: 'clamp(40px, 8vw, 80px) 0',
     background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05))'
   },
   contactContent: {
@@ -259,27 +282,36 @@ const styles = {
   contactInfo: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '32px',
-    marginTop: '48px'
+    gap: 'clamp(20px, 4vw, 32px)',
+    marginTop: 'clamp(24px, 6vw, 48px)'
   },
   contactItem: {
     background: 'rgba(255, 255, 255, 0.05)',
     backdropFilter: 'blur(16px)',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '16px',
-    padding: '24px',
+    padding: 'clamp(16px, 3vw, 24px)',
     textAlign: 'center',
     transition: 'all 0.3s ease'
   },
   contactIcon: {
-    width: '48px',
-    height: '48px',
+    width: 'clamp(36px, 6vw, 48px)',
+    height: 'clamp(36px, 6vw, 48px)',
     background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
     borderRadius: '12px',
     margin: '0 auto 16px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  languageSelect: {
+    marginLeft: '16px',
+    borderRadius: '6px',
+    padding: '4px 8px',
+    fontSize: '15px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    color: 'white',
+    border: '1px solid rgba(255, 255, 255, 0.2)'
   }
 };
 
@@ -295,8 +327,8 @@ const FloatingOrbs = () => (
       position: 'absolute',
       top: '80px',
       left: '40px',
-      width: '128px',
-      height: '128px',
+      width: 'clamp(80px, 15vw, 128px)',
+      height: 'clamp(80px, 15vw, 128px)',
       background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
       borderRadius: '50%',
       filter: 'blur(40px)',
@@ -308,8 +340,8 @@ const FloatingOrbs = () => (
       position: 'absolute',
       top: '160px',
       right: '80px',
-      width: '160px',
-      height: '160px',
+      width: 'clamp(100px, 18vw, 160px)',
+      height: 'clamp(100px, 18vw, 160px)',
       background: 'linear-gradient(135deg, #10b981, #14b8a6)',
       borderRadius: '50%',
       filter: 'blur(40px)',
@@ -321,9 +353,9 @@ const FloatingOrbs = () => (
       position: 'absolute',
       top: '-40px',
       left: '50%',
-      marginLeft: '-56px',
-      width: '112px',
-      height: '112px',
+      marginLeft: 'clamp(-40px, -8vw, -56px)',
+      width: 'clamp(70px, 13vw, 112px)',
+      height: 'clamp(70px, 13vw, 112px)',
       background: 'linear-gradient(135deg, #64748b, #4b5563)',
       borderRadius: '50%',
       filter: 'blur(40px)',
@@ -389,7 +421,7 @@ const FeatureCard = ({ feature, index }) => {
         ...styles.card,
         transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
         boxShadow: isHovered ? '0 25px 50px rgba(59, 130, 246, 0.2)' : '0 4px 20px rgba(0, 0, 0, 0.1)',
-        padding: '24px'
+        padding: 'clamp(16px, 3vw, 24px)'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -409,8 +441,8 @@ const FeatureCard = ({ feature, index }) => {
         position: 'absolute',
         top: '16px',
         right: '16px',
-        width: '48px',
-        height: '48px',
+        width: 'clamp(36px, 6vw, 48px)',
+        height: 'clamp(36px, 6vw, 48px)',
         borderRadius: '12px',
         background: isHovered ? gradients[index % gradients.length] : 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2))',
         backdropFilter: 'blur(8px)',
@@ -423,14 +455,14 @@ const FeatureCard = ({ feature, index }) => {
         zIndex: 2
       }}>
         <div style={{
-          width: '24px',
-          height: '24px',
+          width: 'clamp(16px, 3vw, 24px)',
+          height: 'clamp(16px, 3vw, 24px)',
           background: 'rgba(96, 165, 250, 0.6)',
           borderRadius: '4px'
         }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, paddingTop: '32px' }}>
+      <div style={{ position: 'relative', zIndex: 1, paddingTop: 'clamp(24px, 4vw, 32px)' }}>
         <h3 style={{
           ...styles.typography.h5,
           background: isHovered ? 'linear-gradient(135deg, #93c5fd, #ddd6fe)' : 'none',
@@ -466,7 +498,7 @@ const StatsBox = ({ number, label, delay = 0 }) => {
     <div
       style={{
         ...styles.paper,
-        padding: '24px',
+        padding: 'clamp(16px, 3vw, 24px)',
         textAlign: 'center',
         transition: 'all 0.3s ease',
         transform: isVisible ? (isHovered ? 'translateY(-4px)' : 'translateY(0)') : 'translateY(20px)',
@@ -477,7 +509,7 @@ const StatsBox = ({ number, label, delay = 0 }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div style={{
-        fontSize: '2.5rem',
+        fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
         fontWeight: 700,
         color: 'white',
         marginBottom: '8px'
@@ -495,8 +527,8 @@ const StatsBox = ({ number, label, delay = 0 }) => {
 const PingDot = ({ style, delay = 0 }) => (
   <div style={{
     position: 'absolute',
-    width: '8px',
-    height: '8px',
+    width: 'clamp(6px, 1vw, 8px)',
+    height: 'clamp(6px, 1vw, 8px)',
     background: '#60a5fa',
     borderRadius: '50%',
     ...style
@@ -513,11 +545,28 @@ const PingDot = ({ style, delay = 0 }) => (
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslation();
+
+  // Use translations for features and testimonials
+  const localFeatures = t('features.list', { returnObjects: true }) || features;
+  const localTestimonials = t('testimonials.list', { returnObjects: true }) || testimonials;
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const scrollToSection = (sectionId) => {
@@ -525,11 +574,17 @@ const Home = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+    setMobileMenuOpen(false);
+  };
+
+  // Language dropdown handler
+  const handleLanguageChange = (e) => {
+    i18n.changeLanguage(e.target.value);
   };
 
   return (
     <div style={styles.gradientBox}>
-      {/* Global styles */}
+      {/* Global styles with responsive CSS */}
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.4; transform: scale(1); }
@@ -545,6 +600,26 @@ const Home = () => {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           33% { transform: translateY(-10px) rotate(1deg); }
           66% { transform: translateY(5px) rotate(-1deg); }
+        }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+          .nav-links { display: none !important; }
+          .mobile-menu-button { display: block !important; }
+          .mobile-menu.open { display: flex !important; }
+          .auth-buttons { gap: 8px !important; }
+          .hero-buttons { flex-direction: column !important; align-items: center !important; }
+          .stats-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .features-grid { grid-template-columns: 1fr !important; }
+          .contact-info { grid-template-columns: 1fr !important; }
+          .testimonials-grid { grid-template-columns: 1fr !important; }
+        }
+        
+        @media (max-width: 480px) {
+          .container { padding: 0 16px !important; }
+          .toolbar { padding: 0 16px !important; }
+          .hero-section { padding-top: 120px !important; }
+          .cta-section { padding: 40px 16px !important; }
         }
       `}</style>
 
@@ -566,14 +641,16 @@ const Home = () => {
             }}>
               LOCAL<span style={{ color: 'white' }}> LINK</span>
             </h1>
-            <div style={styles.navLinks}>
+            
+            {/* Desktop Navigation */}
+            <div className="nav-links" style={styles.navLinks}>
               <a 
                 style={styles.navLink} 
                 onClick={() => scrollToSection('about')}
                 onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
                 onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
               >
-                About
+                {t('nav.about')}
               </a>
               <a 
                 style={styles.navLink} 
@@ -581,7 +658,7 @@ const Home = () => {
                 onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
                 onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
               >
-                Features
+                {t('nav.features')}
               </a>
               <a 
                 style={styles.navLink} 
@@ -589,7 +666,7 @@ const Home = () => {
                 onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
                 onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
               >
-                Testimonials
+                {t('nav.testimonials')}
               </a>
               <a 
                 style={styles.navLink} 
@@ -597,34 +674,68 @@ const Home = () => {
                 onMouseEnter={(e) => e.target.style.color = '#60a5fa'}
                 onMouseLeave={(e) => e.target.style.color = 'rgba(255, 255, 255, 0.8)'}
               >
-                Contact
+                {t('nav.contact')}
               </a>
+              {/* Language Dropdown */}
+              <select 
+                onChange={handleLanguageChange} 
+                defaultValue={i18n.language} 
+                style={styles.languageSelect}
+              >
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="kn">ಕನ್ನಡ</option>
+              </select>
             </div>
-            <div style={styles.authButtons}>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="mobile-menu-button"
+              style={styles.mobileMenuButton}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              ☰
+            </button>
+
+            <div className="auth-buttons" style={styles.authButtons}>
               <Link to="/login" style={{ textDecoration: 'none' }}>
                 <button style={{
                   ...styles.button.base,
                   ...styles.button.text,
-                  padding: '8px 16px'
+                  padding: 'clamp(6px, 1.5vw, 8px) clamp(12px, 2vw, 16px)',
+                  fontSize: 'clamp(0.875rem, 1.5vw, 1rem)'
                 }}>
-                  Login
+                  {t('nav.login')}
                 </button>
               </Link>
               <Link to="/signup" style={{ textDecoration: 'none' }}>
                 <AnimatedButton variant="contained">
-                  Signup
+                  {t('nav.signup')}
                 </AnimatedButton>
               </Link>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`} style={styles.mobileMenu}>
+          <a onClick={() => scrollToSection('about')} style={styles.navLink}>{t('nav.about')}</a>
+          <a onClick={() => scrollToSection('features')} style={styles.navLink}>{t('nav.features')}</a>
+          <a onClick={() => scrollToSection('testimonials')} style={styles.navLink}>{t('nav.testimonials')}</a>
+          <a onClick={() => scrollToSection('contact')} style={styles.navLink}>{t('nav.contact')}</a>
+          <select onChange={handleLanguageChange} defaultValue={i18n.language} style={styles.languageSelect}>
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="kn">ಕನ್ನಡ</option>
+          </select>
+        </div>
       </nav>
 
       {/* Hero Section */}
-      <section style={{
+      <section className="hero-section" style={{
         ...styles.container,
-        paddingTop: '160px',
-        paddingBottom: '80px',
+        paddingTop: 'clamp(120px, 20vw, 160px)',
+        paddingBottom: 'clamp(40px, 10vw, 80px)',
         position: 'relative',
         zIndex: 1
       }}>
@@ -633,61 +744,57 @@ const Home = () => {
         <PingDot style={{ top: '75%', right: '25%' }} delay={1000} />
         <PingDot style={{ top: '50%', left: '75%' }} delay={2000} />
 
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(32px, 8vw, 64px)' }}>
           <h1 style={styles.typography.h1}>
-            Empower Your
+            {t('hero.title')}
             <span style={{
               display: 'block',
               background: 'linear-gradient(135deg, #60a5fa, #6366f1, #14b8a6)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>
-              Local Business Network
+              {t('hero.subtitle')}
             </span>
           </h1>
 
           <p style={{
             ...styles.typography.h6,
             maxWidth: '800px',
-            margin: '0 auto 32px'
+            margin: '0 auto clamp(16px, 4vw, 32px)'
           }}>
-            The professional network for local businesses, entrepreneurs, and skilled professionals.
-            <span style={{ color: '#93c5fd', fontWeight: 600 }}>
-              {' '}Connect, collaborate, and grow
-            </span>
-            {' '}your business with LOCAL LINK.
+            {t('hero.description')}
           </p>
 
-          <div style={{
+          <div className="hero-buttons" style={{
             display: 'flex',
-            gap: '24px',
+            gap: 'clamp(16px, 3vw, 24px)',
             justifyContent: 'center',
             flexWrap: 'wrap',
-            marginBottom: '64px'
+            marginBottom: 'clamp(32px, 8vw, 64px)'
           }}>
             <Link to="/signup" style={{ textDecoration: 'none' }}>
               <AnimatedButton variant="contained">
-                Start Networking
+                {t('hero.startNetworking')}
               </AnimatedButton>
             </Link>
             <Link to="/login" style={{ textDecoration: 'none' }}>
               <AnimatedButton variant="outlined">
-                Business Login
+                {t('hero.businessLogin')}
               </AnimatedButton>
             </Link>
           </div>
 
           {/* Stats */}
-          <div style={{
+          <div className="stats-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '32px',
+            gap: 'clamp(16px, 4vw, 32px)',
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            <StatsBox number="15K+" label="Professionals" delay={500} />
-            <StatsBox number="2K+" label="Businesses" delay={700} />
-            <StatsBox number="100+" label="Cities" delay={900} />
+            <StatsBox number="15K+" label={t('hero.stats.professionals')} delay={500} />
+            <StatsBox number="2K+" label={t('hero.stats.businesses')} delay={700} />
+            <StatsBox number="100+" label={t('hero.stats.cities')} delay={900} />
           </div>
         </div>
       </section>
@@ -695,26 +802,19 @@ const Home = () => {
       {/* About Section */}
       <section id="about" style={{
         ...styles.container,
-        paddingTop: '80px',
-        paddingBottom: '80px'
+        paddingTop: 'clamp(40px, 8vw, 80px)',
+        paddingBottom: 'clamp(40px, 8vw, 80px)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(32px, 8vw, 64px)' }}>
           <h2 style={styles.typography.h2}>
-            About{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              LOCAL LINK
-            </span>
+            {t('about.title')}
           </h2>
           
           <div style={{
-            width: '96px',
+            width: 'clamp(60px, 12vw, 96px)',
             height: '4px',
             background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            margin: '0 auto 32px',
+            margin: '0 auto clamp(16px, 4vw, 32px)',
             borderRadius: '2px'
           }} />
           
@@ -723,10 +823,7 @@ const Home = () => {
             maxWidth: '900px',
             margin: '0 auto'
           }}>
-            LOCAL LINK is the professional networking platform designed for tier 2 and tier 3 cities—connecting 
-            local businesses, entrepreneurs, skilled professionals, and service providers. Whether you're seeking 
-            business partnerships, hiring talent, or expanding your professional network, LOCAL LINK is your 
-            gateway to local business growth.
+            {t('about.description')}
           </p>
         </div>
       </section>
@@ -734,38 +831,31 @@ const Home = () => {
       {/* Features Section */}
       <section id="features" style={{
         ...styles.container,
-        paddingTop: '80px',
-        paddingBottom: '80px'
+        paddingTop: 'clamp(40px, 8vw, 80px)',
+        paddingBottom: 'clamp(40px, 8vw, 80px)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(32px, 8vw, 64px)' }}>
           <h2 style={styles.typography.h2}>
-            Our{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              Features
-            </span>
+            {t('features.title')}
           </h2>
           
           <div style={{
-            width: '96px',
+            width: 'clamp(60px, 12vw, 96px)',
             height: '4px',
             background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            margin: '0 auto 32px',
+            margin: '0 auto clamp(16px, 4vw, 32px)',
             borderRadius: '2px'
           }} />
         </div>
 
         {/* Features Grid */}
-        <div style={{
+        <div className="features-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: '32px',
-          marginBottom: '64px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: 'clamp(20px, 4vw, 32px)',
+          marginBottom: 'clamp(32px, 8vw, 64px)'
         }}>
-          {features.map((feature, index) => (
+          {localFeatures.map((feature, index) => (
             <FeatureCard key={index} feature={feature} index={index} />
           ))}
         </div>
@@ -774,20 +864,13 @@ const Home = () => {
       {/* Testimonials Section */}
       <section id="testimonials" style={styles.testimonialsSection}>
         <div style={styles.container}>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(16px, 4vw, 32px)' }}>
             <h2 style={styles.typography.h2}>
-              What Our{' '}
-              <span style={{
-                background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                Users Say
-              </span>
+              {t('testimonials.title')}
             </h2>
             
             <div style={{
-              width: '96px',
+              width: 'clamp(60px, 12vw, 96px)',
               height: '4px',
               background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
               margin: '0 auto',
@@ -795,8 +878,8 @@ const Home = () => {
             }} />
           </div>
 
-          <div style={styles.testimonialsGrid}>
-            {testimonials.map((testimonial, index) => (
+          <div className="testimonials-grid" style={styles.testimonialsGrid}>
+            {localTestimonials.map((testimonial, index) => (
               <div 
                 key={index} 
                 style={{
@@ -834,32 +917,25 @@ const Home = () => {
         <div style={styles.container}>
           <div style={styles.contactContent}>
             <h2 style={styles.typography.h2}>
-              Get In{' '}
-              <span style={{
-                background: 'linear-gradient(135deg, #60a5fa, #6366f1)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-              }}>
-                Touch
-              </span>
+              {t('contact.title')}
             </h2>
             
             <div style={{
-              width: '96px',
+              width: 'clamp(60px, 12vw, 96px)',
               height: '4px',
               background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-              margin: '0 auto 32px',
+              margin: '0 auto clamp(16px, 4vw, 32px)',
               borderRadius: '2px'
             }} />
             
             <p style={{
               ...styles.typography.h6,
-              marginBottom: '48px'
+              marginBottom: 'clamp(24px, 6vw, 48px)'
             }}>
-              Ready to transform your local business network? Get in touch with us today and join the LOCAL LINK community.
+              {t('contact.description')}
             </p>
 
-            <div style={styles.contactInfo}>
+            <div className="contact-info" style={styles.contactInfo}>
               <div style={{
                 ...styles.contactItem,
                 ':hover': {
@@ -877,14 +953,14 @@ const Home = () => {
               }}>
                 <div style={styles.contactIcon}>
                   <div style={{ 
-                    width: '24px', 
-                    height: '24px', 
+                    width: 'clamp(16px, 3vw, 24px)', 
+                    height: 'clamp(16px, 3vw, 24px)', 
                     background: 'white', 
                     borderRadius: '4px' 
                   }} />
                 </div>
-                <h4 style={styles.typography.h5}>Email Us</h4>
-                <p style={styles.typography.body1}>contact@locallink.com</p>
+                <h4 style={styles.typography.h5}>{t('contact.email')}</h4>
+                <p style={styles.typography.body1}>{t('contact.emailValue')}</p>
               </div>
 
               <div style={{
@@ -904,14 +980,14 @@ const Home = () => {
               }}>
                 <div style={styles.contactIcon}>
                   <div style={{ 
-                    width: '24px', 
-                    height: '24px', 
+                    width: 'clamp(16px, 3vw, 24px)', 
+                    height: 'clamp(16px, 3vw, 24px)', 
                     background: 'white', 
                     borderRadius: '4px' 
                   }} />
                 </div>
-                <h4 style={styles.typography.h5}>Call Us</h4>
-                <p style={styles.typography.body1}>+91 98765 43210</p>
+                <h4 style={styles.typography.h5}>{t('contact.call')}</h4>
+                <p style={styles.typography.body1}>{t('contact.callValue')}</p>
               </div>
 
               <div style={{
@@ -931,14 +1007,14 @@ const Home = () => {
               }}>
                 <div style={styles.contactIcon}>
                   <div style={{ 
-                    width: '24px', 
-                    height: '24px', 
+                    width: 'clamp(16px, 3vw, 24px)', 
+                    height: 'clamp(16px, 3vw, 24px)', 
                     background: 'white', 
                     borderRadius: '4px' 
                   }} />
                 </div>
-                <h4 style={styles.typography.h5}>Visit Us</h4>
-                <p style={styles.typography.body1}>Business District, Tech City</p>
+                <h4 style={styles.typography.h5}>{t('contact.visit')}</h4>
+                <p style={styles.typography.body1}>{t('contact.visitValue')}</p>
               </div>
             </div>
           </div>
@@ -946,29 +1022,29 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section style={{
+      <section className="cta-section" style={{
         ...styles.container,
-        paddingTop: '80px',
-        paddingBottom: '80px'
+        paddingTop: 'clamp(40px, 8vw, 80px)',
+        paddingBottom: 'clamp(40px, 8vw, 80px)'
       }}>
         <div style={{
           ...styles.paper,
           background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2))',
-          padding: '64px 32px',
+          padding: 'clamp(32px, 8vw, 64px) clamp(16px, 4vw, 32px)',
           textAlign: 'center'
         }}>
           <h3 style={styles.typography.h3}>
-            Ready to Expand Your Professional Network?
+            {t('cta.title')}
           </h3>
           <p style={{
             ...styles.typography.h6,
-            marginBottom: '32px'
+            marginBottom: 'clamp(16px, 4vw, 32px)'
           }}>
-            Join thousands of local businesses and professionals already growing together
+            {t('cta.description')}
           </p>
           <Link to="/signup" style={{ textDecoration: 'none' }}>
             <AnimatedButton variant="contained">
-              Join the Network
+              {t('cta.join')}
             </AnimatedButton>
           </Link>
         </div>
@@ -979,7 +1055,7 @@ const Home = () => {
         background: 'rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(16px)',
         borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '48px 0'
+        padding: 'clamp(24px, 6vw, 48px) 0'
       }}>
         <div style={{
           ...styles.container,
@@ -992,19 +1068,20 @@ const Home = () => {
             WebkitTextFillColor: 'transparent',
             marginBottom: '16px'
           }}>
-            LOCAL<span style={{ color: 'white' }}> LINK</span>
+            {t('footer.title')}
           </h3>
           <p style={{
             color: 'rgba(255, 255, 255, 0.6)',
-            marginBottom: '24px'
+            marginBottom: '24px',
+            fontSize: 'clamp(0.875rem, 1.2vw, 1rem)'
           }}>
-            Professional networking • Business growth • Local connections
+            {t('footer.description')}
           </p>
           <p style={{
             color: 'rgba(255, 255, 255, 0.4)',
-            fontSize: '0.875rem'
+            fontSize: 'clamp(0.75rem, 1vw, 0.875rem)'
           }}>
-            © {new Date().getFullYear()} LOCAL LINK. Empowering professional communities worldwide.
+            {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
         </div>
       </footer>
