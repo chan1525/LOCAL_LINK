@@ -3,32 +3,52 @@ import { auth, db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
+import './BusinessDashboard.css';
 
 const navActions = [
-  { label: "Create Post", icon: "📝", route: "/create-post", description: "Share updates" },
-  { label: "View Posts", icon: "📋", route: "/posts", description: "See all posts" },
-  { label: "Post Job", icon: "💼", route: "/post-job", description: "Hire talent" },
-  { label: "My Jobs", icon: "📁", route: "/my-jobs", description: "Manage jobs" },
-  { label: "Browse Business", icon: "🏢", route: "/browse/business", description: "Find businesses" },
-  { label: "Browse Individuals", icon: "👥", route: "/browse/individuals", description: "Find professionals" },
-  { label: "Profile", icon: "⚙️", route: "/profile", description: "Manage account" },
+  { label: "Create Post", icon: "✍️", route: "/create-post", description: "Share updates", category: "Content" },
+  { label: "View Posts", icon: "📖", route: "/posts", description: "See all posts", category: "Content" },
+  { label: "Post Job", icon: "🎯", route: "/post-job", description: "Hire talent", category: "Recruitment" },
+  { label: "My Jobs", icon: "📊", route: "/my-jobs", description: "Manage jobs", category: "Recruitment" },
+  { label: "Browse Business", icon: "🏛️", route: "/browse/business", description: "Find businesses", category: "Network" },
+  { label: "Browse Individuals", icon: "👔", route: "/browse/individuals", description: "Find professionals", category: "Network" },
+  { label: "Profile", icon: "⚙️", route: "/profile", description: "Manage account", category: "Settings" },
 ];
 
 const statsCards = [
-  { icon: "📈", title: "Growth Ready", description: "Scale your business with powerful tools" },
-  { icon: "🤝", title: "Connect", description: "Network with professionals worldwide" },
-  { icon: "⚡", title: "Efficient", description: "Streamline your business operations" },
+  { 
+    icon: "📈", 
+    title: "Business Growth", 
+    value: "125%",
+    description: "Year-over-year expansion",
+    trend: "+23% this month"
+  },
+  { 
+    icon: "🤝", 
+    title: "Active Connections", 
+    value: "847",
+    description: "Professional network",
+    trend: "+12 this week"
+  },
+  { 
+    icon: "💼", 
+    title: "Job Postings", 
+    value: "24",
+    description: "Active opportunities",
+    trend: "6 new applications"
+  },
 ];
-
-const mainBlue = "#183484";
-const lightGray = "#f8fafc";
-const cardBorder = "#dde1ea";
-const cardShadow = "0 2px 12px #dde1ea1a";
 
 const BusinessDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -45,262 +65,263 @@ const BusinessDashboard = () => {
     fetchUser();
   }, [navigate]);
 
-  if (loading)
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: lightGray,
-        color: mainBlue, fontWeight: 500, fontSize: 22
-      }}>
-        Loading...
+      <div className="loading-container">
+        <div className="elegant-spinner">
+          <div className="spinner-ring"></div>
+        </div>
+        <p className="loading-text">Preparing your executive dashboard...</p>
       </div>
     );
-  if (!userData)
+  }
+
+  if (!userData) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: lightGray,
-        color: '#b91c1c', fontWeight: 500, fontSize: 22
-      }}>
-        User not found.
+      <div className="error-container">
+        <div className="error-content">
+          <div className="error-icon">⚠️</div>
+          <h2>Access Restricted</h2>
+          <p>Unable to verify your credentials</p>
+        </div>
       </div>
     );
+  }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      width: '100vw',
-      background: lightGray,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch'
-    }}>
-      {/* HEADER */}
-      <header style={{
-        width: '100%',
-        background: '#fff',
-        borderBottom: `1.5px solid ${cardBorder}`,
-        padding: '30px 3vw 14px 3vw',
-        boxSizing: 'border-box',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 10
-      }}>
-        <div>
-          <h1 style={{
-            margin: 0,
-            fontSize: 29,
-            fontWeight: 900,
-            color: mainBlue,
-            letterSpacing: 1.05,
-          }}>
-            Welcome, <span style={{
-              background: 'linear-gradient(90deg,#183484 35%,#64748b 85%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>{userData.name}</span>
-          </h1>
-          <div style={{
-            color: '#476085',
-            fontSize: 16,
-            fontWeight: 400,
-            marginTop: 3
-          }}>
-            Business Owner Dashboard
+    <div className="executive-dashboard">
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <div className="logo">
+            <div className="logo-icon">LL</div>
+            <span className="logo-text">LOCAL_LINK</span>
           </div>
         </div>
-        <button
-          onClick={async () => { await signOut(auth); navigate('/'); }}
-          style={{
-            padding: '10px 28px',
-            background: mainBlue,
-            color: '#fff',
-            border: 'none',
-            borderRadius: 7,
-            fontWeight: 700,
-            fontSize: '1.07rem',
-            cursor: 'pointer',
-            letterSpacing: 0.4,
-            boxShadow: '0 2px 3px #dde1ea30',
-            marginLeft: 'auto'
-          }}
-        >Log Out</button>
-      </header>
-      {/* WELCOME/HERO SECTION */}
-      <section style={{
-        width: '100%',
-        background: '#f1f5fa',
-        borderBottom: `1.5px solid ${cardBorder}`,
-        padding: '38px 3vw 28px 3vw',
-        margin: 0
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 18,
-          padding: '0 0 0 3vw'
-        }}>
-          <span style={{
-            fontSize: 37,
-            background: '#e5e8f5',
-            borderRadius: '40%',
-            padding: 12,
-            marginRight: 10,
-            color: "#355"
-          }}>🏢</span>
-          <div>
-            <h2 style={{
-              fontWeight: 900,
-              fontSize: 31,
-              color: mainBlue,
-              lineHeight: 1.13,
-              margin: '0 0 7px 0'
-            }}>
-              Grow your business and your network
-            </h2>
-            <p style={{
-              color: '#637298',
-              fontSize: 17,
-              margin: 0,
-              maxWidth: 550,
-              fontWeight: 500,
-              lineHeight: 1.5
-            }}>
-              Access all your tools in one place: post, hire, connect, and collaborate professionally.
+        
+        <nav className="sidebar-nav">
+          <div className="nav-section">
+            <h4 className="nav-section-title">CONTENT</h4>
+            {navActions.filter(action => action.category === "Content").map(action => (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.route)}
+                className="sidebar-nav-item"
+              >
+                <span className="nav-icon">{action.icon}</span>
+                <span className="nav-label">{action.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          <div className="nav-section">
+            <h4 className="nav-section-title">RECRUITMENT</h4>
+            {navActions.filter(action => action.category === "Recruitment").map(action => (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.route)}
+                className="sidebar-nav-item"
+              >
+                <span className="nav-icon">{action.icon}</span>
+                <span className="nav-label">{action.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          <div className="nav-section">
+            <h4 className="nav-section-title">NETWORK</h4>
+            {navActions.filter(action => action.category === "Network").map(action => (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.route)}
+                className="sidebar-nav-item"
+              >
+                <span className="nav-icon">{action.icon}</span>
+                <span className="nav-label">{action.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          <div className="nav-section">
+            <h4 className="nav-section-title">SETTINGS</h4>
+            {navActions.filter(action => action.category === "Settings").map(action => (
+              <button
+                key={action.label}
+                onClick={() => navigate(action.route)}
+                className="sidebar-nav-item"
+              >
+                <span className="nav-icon">{action.icon}</span>
+                <span className="nav-label">{action.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="main-content">
+        {/* Top Bar */}
+        <header className="top-bar">
+          <div className="top-bar-left">
+            <h1 className="page-title">Executive Dashboard</h1>
+            <p className="page-subtitle">
+              {getGreeting()}, {userData.name} • {currentTime.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* NAVIGATION GRID */}
-      <nav style={{
-        width: '100%',
-        margin: '0 auto',
-        padding: '36px 3vw 0 3vw',
-        boxSizing: 'border-box'
-      }}>
-        <div style={{
-          width: '100%',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))',
-          gap: 24,
-          margin: '0 auto'
-        }}>
-          {navActions.map(action => (
-            <button
-              key={action.label}
-              onClick={() => navigate(action.route)}
-              style={{
-                background: '#fff',
-                border: `1.2px solid ${cardBorder}`,
-                borderRadius: 10,
-                boxShadow: cardShadow,
-                padding: '30px 11px 19px 11px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                fontWeight: 600,
-                fontSize: 20,
-                color: mainBlue,
-                cursor: 'pointer',
-                transition: 'box-shadow .16s, border-color .14s, transform .14s',
-                outline: 'none',
-                minHeight: 138,
-                textAlign: 'center'
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.boxShadow = "0 4px 20px #18348418";
-                e.currentTarget.style.borderColor = "#64748b";
-                e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.boxShadow = cardShadow;
-                e.currentTarget.style.borderColor = cardBorder;
-                e.currentTarget.style.transform = "none";
-              }}
-              tabIndex={0}
-            >
-              <span style={{
-                fontSize: 30,
-                marginBottom: 1
-              }}>{action.icon}</span>
-              <span style={{ fontWeight: 700, fontSize: 16.7 }}>{action.label}</span>
-              <span style={{
-                fontSize: 13.6,
-                fontWeight: 400,
-                color: '#7e97b8',
-                marginTop: 3
-              }}>
-                {action.description}
-              </span>
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* AT-A-GLANCE STATS */}
-      <section style={{
-        width: '100%',
-        background: '#f1f5fa',
-        padding: '38px 3vw 46px 3vw',
-        marginTop: 44,
-        borderTop: `1.5px solid ${cardBorder}`,
-        boxSizing: 'border-box'
-      }}>
-        <div style={{
-          width: '100%',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))',
-          gap: 20,
-          margin: '0 auto'
-        }}>
-          {statsCards.map(card => (
-            <div key={card.title}
-              style={{
-                background: '#fff',
-                border: `1.2px solid ${cardBorder}`,
-                borderRadius: 10,
-                textAlign: 'center',
-                boxShadow: cardShadow,
-                padding: '20px 9px 13px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minHeight: 100
-              }}>
-              <div style={{ fontSize: 27, marginBottom: 7 }}>{card.icon}</div>
-              <div style={{
-                fontSize: 17.5, fontWeight: 700, color: mainBlue, marginBottom: 2
-              }}>{card.title}</div>
-              <div style={{
-                fontSize: 14, color: "#7e97b8", fontWeight: 400,
-                lineHeight: 1.45
-              }}>{card.description}</div>
+          <div className="top-bar-right">
+            <div className="user-profile">
+              <div className="user-avatar">
+                {userData.image ? (
+                  <img src={userData.image} alt="Profile" />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {userData.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="user-info">
+                <span className="user-name">{userData.name}</span>
+                <span className="user-role">Business Owner</span>
+              </div>
+              <button
+                onClick={async () => { await signOut(auth); navigate('/'); }}
+                className="logout-button"
+                title="Sign Out"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+              </button>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </header>
 
-      {/* Responsive adjustments */}
-      <style>
-        {`
-        @media (max-width: 1100px) {
-          header, section, nav { padding-left: 4vw !important; padding-right: 4vw !important; }
-        }
-        @media (max-width: 740px) {
-          header h1 { font-size: 17px !important; }
-          section h2 { font-size: 19px !important; }
-          nav>div, section>div { grid-template-columns: 1fr !important; }
-        }
-        @media (max-width: 500px) {
-          header, section, nav { padding-left: 1vw !important; padding-right: 1vw !important; }
-        }
-        `}
-      </style>
+        {/* Dashboard Content */}
+        <div className="dashboard-content">
+          {/* Welcome Section */}
+          <section className="welcome-section">
+            <div className="welcome-card">
+              <div className="welcome-content">
+                <div className="welcome-icon">
+                  <i className="fas fa-chart-line"></i>
+                </div>
+                <div className="welcome-text">
+                  <h2>Welcome to your Business Command Center</h2>
+                  <p>Monitor your business performance, manage opportunities, and expand your professional network from this centralized hub.</p>
+                </div>
+              </div>
+              <div className="welcome-actions">
+                <button 
+                  className="cta-button primary"
+                  onClick={() => navigate('/create-post')}
+                >
+                  <i className="fas fa-plus-circle"></i>
+                  Create Post
+                </button>
+                <button 
+                  className="cta-button secondary"
+                  onClick={() => navigate('/post-job')}
+                >
+                  <i className="fas fa-briefcase"></i>
+                  Post Job
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Stats Overview */}
+          <section className="stats-overview">
+            <h3 className="section-title">Business Metrics</h3>
+            <div className="stats-grid">
+              {statsCards.map((stat, index) => (
+                <div key={stat.title} className="stat-card" style={{'--delay': `${index * 0.1}s`}}>
+                  <div className="stat-header">
+                    <div className="stat-icon">{stat.icon}</div>
+                    <div className="stat-trend">{stat.trend}</div>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-value">{stat.value}</div>
+                    <div className="stat-title">{stat.title}</div>
+                    <div className="stat-description">{stat.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Quick Actions Grid */}
+          <section className="quick-actions">
+            <h3 className="section-title">Quick Actions</h3>
+            <div className="actions-grid">
+              {navActions.map((action, index) => (
+                <div 
+                  key={action.label} 
+                  className="action-card"
+                  onClick={() => navigate(action.route)}
+                  style={{'--delay': `${index * 0.05}s`}}
+                >
+                  <div className="action-icon">
+                    <span>{action.icon}</span>
+                  </div>
+                  <div className="action-content">
+                    <h4 className="action-title">{action.label}</h4>
+                    <p className="action-description">{action.description}</p>
+                  </div>
+                  <div className="action-arrow">
+                    <i className="fas fa-chevron-right"></i>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Business Insights */}
+          <section className="business-insights">
+            <h3 className="section-title">Business Insights</h3>
+            <div className="insights-grid">
+              <div className="insight-card">
+                <div className="insight-header">
+                  <h4>Network Analysis</h4>
+                  <i className="fas fa-network-wired"></i>
+                </div>
+                <div className="insight-content">
+                  <p>Your professional network has grown by <strong>23%</strong> this quarter. Consider engaging more with industry connections to maximize opportunities.</p>
+                </div>
+              </div>
+              
+              <div className="insight-card">
+                <div className="insight-header">
+                  <h4>Content Performance</h4>
+                  <i className="fas fa-chart-bar"></i>
+                </div>
+                <div className="insight-content">
+                  <p>Your recent posts show <strong>18% higher engagement</strong>. Visual content and industry insights are resonating well with your audience.</p>
+                </div>
+              </div>
+              
+              <div className="insight-card">
+                <div className="insight-header">
+                  <h4>Recruitment Success</h4>
+                  <i className="fas fa-user-check"></i>
+                </div>
+                <div className="insight-content">
+                  <p>Job postings receive an average of <strong>15 applications</strong> within 48 hours. Your company brand is attracting quality candidates.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 };

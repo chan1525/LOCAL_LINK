@@ -10,13 +10,30 @@ import {
   deleteDoc
 } from 'firebase/firestore';
 import MessageModal from '../../components/MessageModal';
+import './MyJobs.css';
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState({});
   const [deleting, setDeleting] = useState({});
-  const [modal, setModal] = useState(null); // { jobId, applicantId, applicantName }
+  const [modal, setModal] = useState(null);
+  const [businessData, setBusinessData] = useState(null);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+
+  useEffect(() => {
+    const fetchBusinessData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const businessSnap = await getDoc(doc(db, 'business_owners', user.uid));
+        if (businessSnap.exists()) {
+          setBusinessData(businessSnap.data());
+        }
+      }
+    };
+    fetchBusinessData();
+  }, []);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -34,7 +51,6 @@ const MyJobs = () => {
   }, []);
 
   useEffect(() => {
-    // Fetch applications for each job
     const fetchApplications = async () => {
       const apps = {};
       for (const job of jobs) {
@@ -49,74 +65,295 @@ const MyJobs = () => {
   const handleDelete = async (jobId) => {
     if (!window.confirm('Are you sure you want to delete this job and all its applications?')) return;
     setDeleting(prev => ({ ...prev, [jobId]: true }));
-    // Delete all applications
+    
     const appsSnap = await getDocs(collection(db, 'jobs', jobId, 'applications'));
     for (const appDoc of appsSnap.docs) {
       await deleteDoc(doc(db, 'jobs', jobId, 'applications', appDoc.id));
     }
-    // Delete the job itself
+    
     await deleteDoc(doc(db, 'jobs', jobId));
     setJobs(prev => prev.filter(job => job.id !== jobId));
     setDeleting(prev => ({ ...prev, [jobId]: false }));
   };
 
-  if (loading) return <div>Loading...</div>;
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp?.toDate) return '';
+    const now = new Date();
+    const postTime = timestamp.toDate();
+    const diff = now - postTime;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) return `${days} days ago`;
+    if (hours > 0) return `${hours} hours ago`;
+    return 'Just posted';
+  };
+
+  const getTotalApplications = () => {
+    return Object.values(applications).reduce((total, jobApps) => total + jobApps.length, 0);
+  };
+
+  const sortedJobs = [...jobs].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return (b.createdAt?.toDate() || 0) - (a.createdAt?.toDate() || 0);
+      case 'oldest':
+        return (a.createdAt?.toDate() || 0) - (b.createdAt?.toDate() || 0);
+      case 'applications':
+        return (applications[b.id]?.length || 0) - (applications[a.id]?.length || 0);
+      default:
+        return 0;
+    }
+  });
+
+  if (loading) {
+    return (
+      <div className="my-jobs-loading">
+        <div className="loading-spinner-container">
+          <div className="elegant-spinner">
+            <div className="spinner-ring"></div>
+          </div>
+          <p>Loading your job listings...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 900, margin: '2em auto', padding: 24 }}>
-      <h2>My Job Listings</h2>
-      {jobs.length === 0 && <div>You have not posted any jobs yet.</div>}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5em' }}>
-        {jobs.map(job => (
-          <div key={job.id} style={{ background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px #eee', padding: 16 }}>
-            <h3 style={{ margin: '0 0 8px 0' }}>{job.title}</h3>
-            <div style={{ color: '#555', marginBottom: 4 }}><strong>Location:</strong> {job.location}</div>
-            <div style={{ color: '#888', fontSize: 14, marginBottom: 4 }}><strong>Salary:</strong> {job.salary}</div>
-            <div style={{ color: '#888', fontSize: 14, marginBottom: 4 }}><strong>Requirements:</strong> {job.requirements}</div>
-            <div style={{ marginBottom: 8 }}>{job.description}</div>
-            <div style={{ color: '#888', fontSize: 12, marginBottom: 8 }}>
-              {job.createdAt && job.createdAt.toDate ? job.createdAt.toDate().toLocaleString() : ''}
-            </div>
-            <button
-              onClick={() => handleDelete(job.id)}
-              disabled={deleting[job.id]}
-              style={{ background: '#dc3545', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 16px', fontWeight: 600, marginBottom: 12 }}
-            >
-              {deleting[job.id] ? 'Deleting...' : 'Delete'}
-            </button>
-            <div style={{ marginTop: 12 }}>
-              <strong>Applications:</strong>
-              <div style={{ marginTop: 8 }}>
-                {(applications[job.id] || []).length === 0 && <div style={{ color: '#888' }}>No applications yet.</div>}
-                {(applications[job.id] || []).map(app => (
-                  <div key={app.id} style={{ marginBottom: 6, padding: 8, background: '#f5f6fa', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontWeight: 500 }}>{app.userName}</span>
-                    <div style={{ color: '#888', fontSize: 11 }}>
-                      {app.appliedAt && app.appliedAt.toDate ? app.appliedAt.toDate().toLocaleString() : ''}
-                    </div>
-                    <button
-                      style={{ marginLeft: 12, padding: '4px 12px', background: '#007bff', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600 }}
-                      onClick={() => setModal({ jobId: job.id, applicantId: app.id, applicantName: app.userName })}
-                    >
-                      Message
-                    </button>
+    <div className="my-jobs-executive">
+      {/* Background Elements */}
+      <div className="background-elements">
+        <div className="floating-orb orb-1"></div>
+        <div className="floating-orb orb-2"></div>
+      </div>
+
+      <div className="my-jobs-container">
+        {/* Header Section */}
+        <header className="dashboard-header">
+          <div className="header-content">
+            <div className="header-left">
+              <div className="company-avatar">
+                {businessData?.image ? (
+                  <img src={businessData.image} alt="Company logo" />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {businessData?.businessName?.charAt(0).toUpperCase() || 'C'}
                   </div>
-                ))}
+                )}
+              </div>
+              <div className="header-text">
+                <h1 className="page-title">Job Management Center</h1>
+                <p className="page-subtitle">
+                  Manage your job listings and review applications from qualified candidates
+                </p>
+              </div>
+            </div>
+            <div className="header-stats">
+              <div className="stat-card">
+                <div className="stat-number">{jobs.length}</div>
+                <div className="stat-label">Active Jobs</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">{getTotalApplications()}</div>
+                <div className="stat-label">Applications</div>
               </div>
             </div>
           </div>
-        ))}
+        </header>
+
+        {/* Control Bar */}
+        <div className="control-bar">
+          <div className="control-left">
+            <div className="sort-controls">
+              <label htmlFor="sort-select">Sort by:</label>
+              <select 
+                id="sort-select"
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+                className="sort-select"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="applications">Most Applications</option>
+              </select>
+            </div>
+          </div>
+          <div className="control-right">
+            <button 
+              className="create-job-btn"
+              onClick={() => window.location.href = '/post-job'}
+            >
+              <i className="fas fa-plus"></i>
+              Post New Job
+            </button>
+          </div>
+        </div>
+
+        {/* Jobs Content */}
+        {jobs.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">
+              <i className="fas fa-briefcase"></i>
+            </div>
+            <h3>No Job Listings Yet</h3>
+            <p>Start building your team by posting your first job opportunity</p>
+            <button 
+              className="cta-button"
+              onClick={() => window.location.href = '/post-job'}
+            >
+              <i className="fas fa-plus-circle"></i>
+              Post Your First Job
+            </button>
+          </div>
+        ) : (
+          <main className="jobs-grid">
+            {sortedJobs.map((job, index) => (
+              <article 
+                key={job.id} 
+                className="job-card"
+                style={{ '--animation-delay': `${index * 0.1}s` }}
+              >
+                {/* Job Header */}
+                <div className="job-header">
+                  <div className="job-title-section">
+                    <h3 className="job-title">{job.title}</h3>
+                    <div className="job-meta">
+                      <span className="job-location">
+                        <i className="fas fa-map-marker-alt"></i>
+                        {job.location}
+                      </span>
+                      <span className="job-time">{formatTimeAgo(job.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="job-actions">
+                    <button 
+                      className="action-btn edit-btn"
+                      title="Edit job"
+                    >
+                      <i className="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      className="action-btn delete-btn"
+                      onClick={() => handleDelete(job.id)}
+                      disabled={deleting[job.id]}
+                      title="Delete job"
+                    >
+                      {deleting[job.id] ? (
+                        <div className="mini-spinner"></div>
+                      ) : (
+                        <i className="fas fa-trash"></i>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Job Content */}
+                <div className="job-content">
+                  <div className="job-details">
+                    <div className="detail-row">
+                      <span className="detail-label">Salary:</span>
+                      <span className="detail-value salary">{job.salary}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="job-description">
+                    <p>{job.description}</p>
+                  </div>
+                  
+                  <div className="job-requirements">
+                    <h5>Requirements:</h5>
+                    <p>{job.requirements}</p>
+                  </div>
+                </div>
+
+                {/* Applications Section */}
+                <div className="applications-section">
+                  <div className="applications-header">
+                    <h4>
+                      <i className="fas fa-users"></i>
+                      Applications ({(applications[job.id] || []).length})
+                    </h4>
+                  </div>
+                  
+                  <div className="applications-list">
+                    {(applications[job.id] || []).length === 0 ? (
+                      <div className="no-applications">
+                        <i className="fas fa-inbox"></i>
+                        <span>No applications yet</span>
+                      </div>
+                    ) : (
+                      <div className="applicants-grid">
+                        {(applications[job.id] || []).slice(0, 3).map(app => (
+                          <div key={app.id} className="applicant-card">
+                            <div className="applicant-info">
+                              <div className="applicant-avatar">
+                                {app.userName?.charAt(0).toUpperCase() || 'U'}
+                              </div>
+                              <div className="applicant-details">
+                                <span className="applicant-name">{app.userName}</span>
+                                <span className="applied-time">
+                                  {formatTimeAgo(app.appliedAt)}
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              className="message-btn"
+                              onClick={() => setModal({ 
+                                jobId: job.id, 
+                                applicantId: app.id, 
+                                applicantName: app.userName 
+                              })}
+                            >
+                              <i className="fas fa-comment"></i>
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {(applications[job.id] || []).length > 3 && (
+                          <div className="view-more-applicants">
+                            <button className="view-more-btn">
+                              +{(applications[job.id] || []).length - 3} more
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Job Footer */}
+                <div className="job-footer">
+                  <div className="job-stats">
+                    <div className="stat-item">
+                      <i className="fas fa-eye"></i>
+                      <span>124 views</span>
+                    </div>
+                    <div className="stat-item">
+                      <i className="fas fa-heart"></i>
+                      <span>18 saves</span>
+                    </div>
+                  </div>
+                  <div className="job-status">
+                    <span className="status-badge active">Active</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </main>
+        )}
+
+        {/* Message Modal */}
+        {modal && (
+          <MessageModal
+            jobId={modal.jobId}
+            applicantId={modal.applicantId}
+            applicantName={modal.applicantName}
+            onClose={() => setModal(null)}
+          />
+        )}
       </div>
-      {modal && (
-        <MessageModal
-          jobId={modal.jobId}
-          applicantId={modal.applicantId}
-          applicantName={modal.applicantName}
-          onClose={() => setModal(null)}
-        />
-      )}
     </div>
   );
 };
 
-export default MyJobs; 
+export default MyJobs;

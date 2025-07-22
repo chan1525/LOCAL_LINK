@@ -13,12 +13,19 @@ import {
   addDoc,
   serverTimestamp
 } from 'firebase/firestore';
+import './PostsFeed.css';
 
 const PostsFeed = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentInputs, setCommentInputs] = useState({});
   const [commentLoading, setCommentLoading] = useState({});
+  const [expandedComments, setExpandedComments] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    setCurrentUser(auth.currentUser);
+  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -84,6 +91,7 @@ const PostsFeed = () => {
       setCommentLoading(prev => ({ ...prev, [postId]: false }));
       return;
     }
+    
     // Try to get user name from Firestore
     let name = userName;
     const businessSnap = await getDocs(query(collection(db, 'business_owners')));
@@ -94,6 +102,7 @@ const PostsFeed = () => {
       const individual = individualSnap.docs.find(doc => doc.id === user.uid);
       if (individual) name = individual.data().name;
     }
+    
     await addDoc(collection(db, 'posts', postId, 'comments'), {
       uid: user.uid,
       userName: name,
@@ -104,65 +113,241 @@ const PostsFeed = () => {
     setCommentLoading(prev => ({ ...prev, [postId]: false }));
   };
 
-  if (loading) return <div>Loading...</div>;
+  const toggleComments = (postId) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp?.toDate) return '';
+    const now = new Date();
+    const postTime = timestamp.toDate();
+    const diff = now - postTime;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    return 'Just now';
+  };
+
+  if (loading) {
+    return (
+      <div className="posts-feed-loading">
+        <div className="loading-spinner-container">
+          <div className="elegant-spinner">
+            <div className="spinner-ring"></div>
+          </div>
+          <p>Loading professional insights...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 700, margin: '2em auto', padding: 24 }}>
-      <h2>All Posts</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5em' }}>
-        {posts.map(post => (
-          <div key={post.id} style={{ background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px #eee', padding: 16 }}>
-            <div style={{ marginBottom: 8, fontWeight: 600 }}>
-              {post.userName} <span style={{ color: '#888', fontSize: 13 }}>({post.userType})</span>
-            </div>
-            <div style={{ marginBottom: 8 }}>{post.content}</div>
-            {post.image && <img src={post.image} alt="Post" style={{ width: 200, maxHeight: 200, objectFit: 'cover', borderRadius: 6, marginBottom: 8 }} />}
-            <div style={{ color: '#888', fontSize: 12, marginBottom: 8 }}>
-              {post.createdAt && post.createdAt.toDate ? post.createdAt.toDate().toLocaleString() : ''}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <button
-                onClick={() => handleLike(post)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: post.likes && auth.currentUser && post.likes.includes(auth.currentUser.uid) ? '#007bff' : '#888', fontWeight: 600 }}
-              >
-                {post.likes && auth.currentUser && post.likes.includes(auth.currentUser.uid) ? '♥' : '♡'} Like
-              </button>
-              <span>{post.likes ? post.likes.length : 0} {post.likes && post.likes.length === 1 ? 'like' : 'likes'}</span>
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <strong>Comments:</strong>
-              <div style={{ marginTop: 8, marginBottom: 8 }}>
-                {(comments[post.id] || []).map(comment => (
-                  <div key={comment.id} style={{ marginBottom: 6, padding: 8, background: '#f5f6fa', borderRadius: 6 }}>
-                    <span style={{ fontWeight: 500 }}>{comment.userName}:</span> {comment.content}
-                    <div style={{ color: '#888', fontSize: 11 }}>
-                      {comment.createdAt && comment.createdAt.toDate ? comment.createdAt.toDate().toLocaleString() : ''}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={commentInputs[post.id] || ''}
-                  onChange={e => handleCommentChange(post.id, e.target.value)}
-                  style={{ flex: 1, padding: 6, borderRadius: 6, border: '1px solid #ccc' }}
-                />
-                <button
-                  onClick={() => handleAddComment(post.id)}
-                  disabled={commentLoading[post.id]}
-                  style={{ padding: '6px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600 }}
-                >
-                  {commentLoading[post.id] ? 'Posting...' : 'Post'}
-                </button>
-              </div>
+    <div className="posts-feed-container">
+      {/* Background Elements */}
+      <div className="background-elements">
+        <div className="floating-orb orb-1"></div>
+        <div className="floating-orb orb-2"></div>
+      </div>
+
+      <div className="posts-feed">
+        {/* Header */}
+        <header className="feed-header">
+          <div className="header-content">
+            <h1 className="feed-title">Professional Network Feed</h1>
+            <p className="feed-subtitle">
+              Stay updated with insights from your professional community
+            </p>
+          </div>
+          <div className="feed-stats">
+            <div className="stat-item">
+              <span className="stat-number">{posts.length}</span>
+              <span className="stat-label">Posts</span>
             </div>
           </div>
-        ))}
+        </header>
+
+        {/* Posts Container */}
+        <main className="posts-container">
+          {posts.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <i className="fas fa-newspaper"></i>
+              </div>
+              <h3>No posts yet</h3>
+              <p>Be the first to share professional insights with your network</p>
+            </div>
+          ) : (
+            <div className="posts-grid">
+              {posts.map((post, index) => (
+                <article 
+                  key={post.id} 
+                  className="post-card"
+                  style={{ '--animation-delay': `${index * 0.1}s` }}
+                >
+                  {/* Post Header */}
+                  <div className="post-header">
+                    <div className="author-info">
+                      <div className="author-avatar">
+                        <div className="avatar-placeholder">
+                          {post.userName?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                      </div>
+                      <div className="author-details">
+                        <h4 className="author-name">{post.userName}</h4>
+                        <div className="post-meta">
+                          <span className="user-type">
+                            {post.userType === 'business' ? 'Business Owner' : 'Professional'}
+                          </span>
+                          <span className="separator">•</span>
+                          <span className="post-time">
+                            {formatTimeAgo(post.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="post-menu">
+                      <button className="menu-button">
+                        <i className="fas fa-ellipsis-h"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Post Content */}
+                  <div className="post-content">
+                    <p className="post-text">{post.content}</p>
+                    {post.image && (
+                      <div className="post-image-container">
+                        <img src={post.image} alt="Post content" className="post-image" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Post Actions */}
+                  <div className="post-actions">
+                    <div className="action-buttons">
+                      <button
+                        className={`action-button like-button ${
+                          post.likes && currentUser && post.likes.includes(currentUser.uid) ? 'liked' : ''
+                        }`}
+                        onClick={() => handleLike(post)}
+                      >
+                        <i className={`${
+                          post.likes && currentUser && post.likes.includes(currentUser.uid) 
+                            ? 'fas fa-heart' 
+                            : 'far fa-heart'
+                        }`}></i>
+                        <span>Like</span>
+                      </button>
+                      
+                      <button
+                        className="action-button comment-button"
+                        onClick={() => toggleComments(post.id)}
+                      >
+                        <i className="far fa-comment"></i>
+                        <span>Comment</span>
+                      </button>
+                      
+                      <button className="action-button share-button">
+                        <i className="far fa-share-square"></i>
+                        <span>Share</span>
+                      </button>
+                    </div>
+
+                    {/* Engagement Stats */}
+                    <div className="engagement-stats">
+                      {post.likes && post.likes.length > 0 && (
+                        <div className="likes-count">
+                          <i className="fas fa-heart"></i>
+                          <span>
+                            {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+                          </span>
+                        </div>
+                      )}
+                      {comments[post.id] && comments[post.id].length > 0 && (
+                        <div className="comments-count">
+                          <i className="far fa-comment"></i>
+                          <span>
+                            {comments[post.id].length} {comments[post.id].length === 1 ? 'comment' : 'comments'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Comments Section */}
+                  {expandedComments[post.id] && (
+                    <div className="comments-section">
+                      <div className="comments-list">
+                        {(comments[post.id] || []).map(comment => (
+                          <div key={comment.id} className="comment-item">
+                            <div className="comment-avatar">
+                              <div className="avatar-placeholder small">
+                                {comment.userName?.charAt(0)?.toUpperCase() || 'U'}
+                              </div>
+                            </div>
+                            <div className="comment-content">
+                              <div className="comment-bubble">
+                                <div className="comment-author">{comment.userName}</div>
+                                <div className="comment-text">{comment.content}</div>
+                              </div>
+                              <div className="comment-time">
+                                {formatTimeAgo(comment.createdAt)}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add Comment */}
+                      <div className="add-comment">
+                        <div className="comment-input-container">
+                          <div className="current-user-avatar">
+                            <div className="avatar-placeholder small">
+                              {currentUser?.displayName?.charAt(0)?.toUpperCase() || 'U'}
+                            </div>
+                          </div>
+                          <div className="comment-input-wrapper">
+                            <input
+                              type="text"
+                              placeholder="Write a professional comment..."
+                              value={commentInputs[post.id] || ''}
+                              onChange={e => handleCommentChange(post.id, e.target.value)}
+                              className="comment-input"
+                              onKeyPress={e => {
+                                if (e.key === 'Enter' && !commentLoading[post.id]) {
+                                  handleAddComment(post.id);
+                                }
+                              }}
+                            />
+                            <button
+                              onClick={() => handleAddComment(post.id)}
+                              disabled={commentLoading[post.id] || !commentInputs[post.id]?.trim()}
+                              className={`comment-submit ${commentLoading[post.id] ? 'loading' : ''}`}
+                            >
+                              {commentLoading[post.id] ? (
+                                <div className="mini-spinner"></div>
+                              ) : (
+                                <i className="fas fa-paper-plane"></i>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
 };
 
-export default PostsFeed; 
+export default PostsFeed;
