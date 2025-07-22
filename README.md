@@ -45,49 +45,7 @@ LOCAL LINK is a comprehensive professional networking platform designed specific
 ### **Development Tools**
 - **Create React App** - Development environment and build tools
 - **ESLint** - Code quality and consistency
-- **Git** - Version control and collaboration
-
-## 📁 Project Structure
-
-local-link/
-├── public/
-│ ├── index.html
-│ ├── favicon.ico
-│ └── manifest.json
-├── src/
-│ ├── components/
-│ │ ├── Home/
-│ │ │ ├── Home.jsx
-│ │ │ └── Home.css
-│ │ ├── Auth/
-│ │ │ ├── Login.jsx
-│ │ │ ├── Signup.jsx
-│ │ │ └── Auth.css
-│ │ ├── Dashboard/
-│ │ │ ├── BusinessDashboard.jsx
-│ │ │ ├── IndividualDashboard.jsx
-│ │ │ └── Dashboard.css
-│ │ ├── Jobs/
-│ │ │ ├── JobsFeed.jsx
-│ │ │ ├── MyApplications.jsx
-│ │ │ └── Jobs.css
-│ │ ├── Network/
-│ │ │ ├── BrowseIndividuals.jsx
-│ │ │ ├── IndividualDetails.jsx
-│ │ │ ├── MyConnections.jsx
-│ │ │ └── Network.css
-│ │ └── Shared/
-│ │ ├── MessageModal.jsx
-│ │ └── Shared.css
-│ ├── firebase.js
-│ ├── App.js
-│ ├── App.css
-│ └── index.js
-├── .gitignore
-├── package.json
-└── README.md
-
-text
+- **Git** - Version control and collaboratio
 
 ## 🚀 Getting Started
 
